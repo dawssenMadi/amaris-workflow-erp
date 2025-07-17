@@ -87,11 +87,11 @@ interface expandedRows {
                             Nom du processus
                             <p-columnFilter type="text" field="processName" display="menu" placeholder="Filtrer..." />
                         </th>
-                        <th style="min-width: 180px">
+                        <th style="min-width: 220px">
                             Identifiant du processus
                             <p-columnFilter type="text" field="processId" display="menu" placeholder="Filtrer..." />
                         </th>
-                        <th style="min-width: 180px">
+                        <th style="min-width: 200px">
                             Version du processus
                             <p-columnFilter type="text" field="processVersion" display="menu" placeholder="Filtrer..." />
                         </th>
