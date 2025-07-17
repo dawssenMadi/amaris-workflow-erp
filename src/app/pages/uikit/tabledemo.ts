@@ -44,7 +44,7 @@ interface expandedRows {
         IconFieldModule
     ],
     template: ` <div class="card">
-            <div class="font-semibold text-xl mb-4">Filtering</div>
+            <div class="font-semibold text-xl mb-4"></div>
             <p-table
                 #dt1
                 [value]="entries"
@@ -59,53 +59,55 @@ interface expandedRows {
                 [globalFilterFields]="['elementType', 'elementName', 'elementId', 'processName', 'processId', 'processVersion', 'description', 'createdAt', 'updatedAt']"
             >
                 <ng-template #caption>
-                    <div class="flex justify-between items-center flex-column sm:flex-row">
-                        <button pButton label="Clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clear(dt1)"></button>
-                        <p-iconfield iconPosition="left" class="ml-auto">
-                            <p-inputicon>
-                                <i class="pi pi-search"></i>
-                            </p-inputicon>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Recherche..." />
-                        </p-iconfield>
+                    <div class="flex justify-between items-center flex-column sm:flex-row gap-2">
+                        <button pButton label="Effacer" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clear(dt1)"></button>
+                        <div class="flex items-center gap-2 ml-auto">
+                            <p-iconfield iconPosition="left">
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
+                                <input pInputText type="text" #searchInput (input)="onGlobalFilter(dt1, $event)" placeholder="Recherche..." />
+                            </p-iconfield>
+                            <p-select
+                                [(ngModel)]="selectedFilterField"
+                                [options]="filterFields"
+                                optionLabel="label"
+                                optionValue="value"
+                                [style]="{ 'min-width': '180px' }"
+                                placeholder="Filtrer par..."
+                                (onChange)="onFilterTypeChange(dt1)"
+                            />
+                        </div>
                     </div>
                 </ng-template>
                 <ng-template #header>
                     <tr>
                         <th style="min-width: 180px">
                             Type d'élément
-                            <p-columnFilter type="text" field="elementType" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 180px">
                             Nom de l'élément
-                            <p-columnFilter type="text" field="elementName" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 180px">
                             Identifiant de l'élément
-                            <p-columnFilter type="text" field="elementId" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 200px">
                             Nom du processus
-                            <p-columnFilter type="text" field="processName" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 220px">
                             Identifiant du processus
-                            <p-columnFilter type="text" field="processId" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 200px">
                             Version du processus
-                            <p-columnFilter type="text" field="processVersion" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 220px">
                             Description
-                            <p-columnFilter type="text" field="description" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 160px">
                             Créé le
-                            <p-columnFilter type="date" field="createdAt" display="menu" placeholder="Filtrer..." />
                         </th>
                         <th style="min-width: 160px">
                             Mis à jour le
-                            <p-columnFilter type="date" field="updatedAt" display="menu" placeholder="Filtrer..." />
                         </th>
                     </tr>
                 </ng-template>
@@ -149,7 +151,23 @@ export class TableDemo implements OnInit {
     entries: DictionaryEntry[] = [];
     loading: boolean = true;
 
+    filterFields = [
+        { label: "Tous les champs", value: null },
+        { label: "Type d'élément", value: "elementType" },
+        { label: "Nom de l'élément", value: "elementName" },
+        { label: "Identifiant de l'élément", value: "elementId" },
+        { label: "Nom du processus", value: "processName" },
+        { label: "Identifiant du processus", value: "processId" },
+        { label: "Version du processus", value: "processVersion" },
+        { label: "Description", value: "description" },
+        { label: "Créé le", value: "createdAt" },
+        { label: "Mis à jour le", value: "updatedAt" }
+    ];
+    selectedFilterField: string | null = null;
+    selectedDate: Date | null = null;
+
     @ViewChild('filter') filter!: ElementRef;
+    @ViewChild('searchInput') searchInput!: ElementRef;
 
     constructor(private dictionaryService: DictionaryService) {}
 
@@ -172,12 +190,57 @@ export class TableDemo implements OnInit {
     }
 
     onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+        const value = (event.target as HTMLInputElement).value;
+        if (this.selectedFilterField) {
+            table.filter(value, this.selectedFilterField, 'contains');
+        } else {
+            table.filterGlobal(value, 'contains');
+        }
+    }
+
+    onDateFilter(table: Table, value: Date) {
+        if (this.selectedFilterField) {
+            table.filter(value, this.selectedFilterField, 'equals');
+        }
     }
 
     clear(table: Table) {
         table.clear();
-        this.filter.nativeElement.value = '';
+        this.selectedDate = null;
+        if (this.selectedFilterField === 'createdAt' || this.selectedFilterField === 'updatedAt') {
+            // Date picker is used, clear selectedDate
+            this.selectedDate = null;
+        } else {
+            // Text input is used, clear its value
+            if (this.searchInput && this.searchInput.nativeElement) {
+                this.searchInput.nativeElement.value = '';
+            }
+        }
+    }
+
+    onFilterTypeChange(table: Table) {
+        // Show loader
+        this.loading = true;
+
+        // Simulate loading delay (e.g., 500ms)
+        setTimeout(() => {
+            // Clear all filters
+            table.clear();
+
+            // Get the current value of the search input
+            const value = this.searchInput?.nativeElement?.value || '';
+
+            // If a specific field is selected, filter by that field
+            if (this.selectedFilterField) {
+                table.filter(value, this.selectedFilterField, 'contains');
+            } else {
+                // Otherwise, apply global filter
+                table.filterGlobal(value, 'contains');
+            }
+
+            // Hide loader
+            this.loading = false;
+        },500 ); 
     }
 
     getSeverity(status: string) {
