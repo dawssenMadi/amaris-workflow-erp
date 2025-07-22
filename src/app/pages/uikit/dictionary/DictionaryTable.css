@@ -1,0 +1,158 @@
+:host ::ng-deep .p-multiselect {
+    min-width: 15rem;
+  }
+  
+  :host ::ng-deep .p-dropdown {
+    min-width: 15rem;
+  }
+  
+  :host ::ng-deep .p-inputtext {
+    padding: 0.4rem 0.5rem;
+  }
+  
+  :host ::ng-deep .product-image {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  :host ::ng-deep .product-badge {
+    border-radius: 10px;
+    padding: 0.25em 0.5em;
+    text-transform: capitalize;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  :host ::ng-deep .product-badge.status-INSTOCK {
+    background-color: #c8e6c9;
+    color: #256029;
+  }
+  
+  :host ::ng-deep .product-badge.status-LOWSTOCK {
+    background-color: #fff8e1;
+    color: #8a5340;
+  }
+  
+  :host ::ng-deep .product-badge.status-OUTOFSTOCK {
+    background-color: #ffcdd2;
+    color: #c63737;
+  }
+  
+  :host ::ng-deep .p-dialog .p-button {
+    margin-right: 0.5rem;
+  }
+  
+  :host ::ng-deep .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  :host ::ng-deep .confirmation-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  :host ::ng-deep .confirmation-content i {
+    font-size: 2rem;
+    color: #f44336;
+  }
+  
+  :host ::ng-deep .p-rating {
+    margin-top: 0.25rem;
+  }
+  
+  :host ::ng-deep .p-datatable-frozen-tbody {
+    font-weight: bold;
+  }
+  
+  :host ::ng-deep .p-datatable-scrollable .p-frozen-column {
+    font-weight: bold;
+  }
+  
+  tr.selected-row-light {
+    background: #e3f2fd !important;
+    transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  
+  tr.selected-row-light:hover {
+    background: #bbdefb !important;
+  }
+  
+  tr.row-hover:hover {
+    background: #e3f2fd !important;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  
+  .action-cell {
+    min-width: 110px;
+    text-align: left;
+    padding-left: 8px;
+    padding-right: 0;
+  }
+  
+  .p-button.p-button-icon-only.p-button-rounded.p-button-text.p-button-sm {
+    margin-right: 4px;
+  }
+  
+  .text-overflow-ellipsis {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  .bg-surface-300 {
+    background-color: #e5e7eb;
+  }
+  
+  .bg-blue-500 {
+    background-color: #3b82f6;
+  }
+  
+  .text-blue-500 {
+    color: #3b82f6;
+  }
+  
+  .rounded-border {
+    border-radius: 4px;
+  }
+  
+  :host ::ng-deep .p-confirm-dialog .soft-warning-icon {
+    background: #fdecea !important;
+    color: #f44336 !important;
+    border-radius: 50%;
+    font-size: 2.2em !important;
+    width: 2.2em;
+    height: 2.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1em auto;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.08);
+  }
+  
+  .field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .field label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  textarea[pInputTextarea] {
+    border: 1px solid var(--p-inputtext-border-color, #ced4da);
+  }
+  

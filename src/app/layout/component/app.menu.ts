@@ -60,8 +60,9 @@ export class AppMenu {
                             },
                         ]
                     },
+                    { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
+                    { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
                     { label: 'Test Unitaire', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
-                    
                 ]
             },
         ];

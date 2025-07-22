@@ -10,13 +10,13 @@ import { MessagesDemo } from './messagesdemo';
 import { MiscDemo } from './miscdemo';
 import { PanelsDemo } from './panelsdemo';
 import { TimelineDemo } from './timelinedemo';
-import { TableDemo } from './tabledemo';
 import { OverlayDemo } from './overlaydemo';
 import { TreeDemo } from './treedemo';
 import { MenuDemo } from './menudemo';
 import { StartAuditComponent } from './start-audit.component';
 import { AuditsComponent } from './audits.component';
 import { Actions } from './Actions';
+
 
 export default [
     { path: 'button', data: { breadcrumb: 'Button' }, component: ButtonDemo },
@@ -30,7 +30,6 @@ export default [
     { path: 'misc', data: { breadcrumb: 'Misc' }, component: MiscDemo },
     { path: 'panel', data: { breadcrumb: 'Panel' }, component: PanelsDemo },
     { path: 'timeline', data: { breadcrumb: 'Timeline' }, component: TimelineDemo },
-    { path: 'table', data: { breadcrumb: 'Table' }, component: TableDemo },
     { path: 'overlay', data: { breadcrumb: 'Overlay' }, component: OverlayDemo },
     { path: 'tree', data: { breadcrumb: 'Tree' }, component: TreeDemo },
     { path: 'menu', data: { breadcrumb: 'Menu' }, component: MenuDemo },
