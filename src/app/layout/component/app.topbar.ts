@@ -5,11 +5,13 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
+import { SplitButton, SplitButtonModule } from 'primeng/splitbutton';
+import { KeycloakService } from '../../pages/service/authentication/keycloak.service';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, SplitButtonModule],
     template: ` <div class="layout-topbar" style="display: flex; align-items: center; justify-content: space-between;">
         <div class="layout-topbar-logo-container" style="display: flex; align-items: center;">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -24,7 +26,7 @@ import { LayoutService } from '../service/layout.service';
                     <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                         <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                     </button>
-                     <app-configurator />
+                    <app-configurator />
                 </div>
 
                 <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
@@ -41,10 +43,7 @@ import { LayoutService } from '../service/layout.service';
                             <i class="pi pi-inbox"></i>
                             <span>Messages</span>
                         </button>
-                        <button type="button" class="layout-topbar-action">
-                            <i class="pi pi-user"></i>
-                            <span>Profile</span>
-                        </button>
+                        <p-splitbutton c [label]="username" [model]="items" severity="secondary" [style]="{'background-color': 'transparent', 'border-color': 'transparent'}" />
                     </div>
                 </div>
             </div>
@@ -53,9 +52,32 @@ import { LayoutService } from '../service/layout.service';
     </div>`
 })
 export class AppTopbar {
-    items!: MenuItem[];
+    items: MenuItem[];
+    username: string;
 
-    constructor(public layoutService: LayoutService) {}
+    constructor(public layoutService: LayoutService, keycloak: KeycloakService) {
+        this.username = keycloak.getUsername();
+        this.items = [
+            {
+                label: 'Update',
+                icon: 'pi pi-refresh'
+            },
+            {
+                label: 'Delete',
+                icon: 'pi pi-times'
+            },
+            {
+                separator: true,
+            },
+            {
+                label: 'Déconnecter',
+                icon: 'pi pi-power-off',
+                command: () => {
+                   keycloak.keycloak.logout();
+                },
+            },
+        ];
+    }
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
