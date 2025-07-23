@@ -22,12 +22,10 @@ export class AppMenu {
         this.model = [
             {
                 label: 'applications Pack ',
-                items: [
-                    { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/uikit/table'] },
-  {
+                items: [{
                     label: 'Audit Application',
                     icon: 'pi pi-fw pi-search',
- items: [
+                    items: [
                             {
                                 label: 'Démarrer Audit',
                                 icon: 'pi pi-fw pi-play',
@@ -63,6 +61,7 @@ export class AppMenu {
                     { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
                     { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
                     { label: 'Test Unitaire', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
+                    { label: 'Modeler', icon: 'pi pi-fw pi-book', routerLink: ['/modeler'] },
                 ]
             },
         ];

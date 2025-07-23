@@ -1,0 +1,17 @@
+<div class="modeler-container">
+    <div #ref class="bpmn-container"></div>
+    <div class="properties-panel-wrapper" [class.hidden]="isPanelHidden">
+        <div class="properties-panel-header">
+            <span>Propriétés</span>
+            <button class="toggle-button" (click)="togglePanel()" title="Masquer le panneau">
+                <i class="pi pi-chevron-right"></i>
+            </button>
+        </div>
+        <div #propertiesPanel class="properties-panel"></div>
+    </div>
+    @if (isPanelHidden) {
+        <button class="show-panel-button" (click)="togglePanel()" title="Afficher le panneau">
+            <i class="pi pi-sliders-h"></i>
+        </button>
+    }
+</div>

@@ -43,7 +43,7 @@ import { KeycloakService } from '../../pages/service/authentication/keycloak.ser
                             <i class="pi pi-inbox"></i>
                             <span>Messages</span>
                         </button>
-                        <p-splitbutton c [label]="username" [model]="items" severity="secondary" [style]="{'background-color': 'transparent', 'border-color': 'transparent'}" />
+                        <p-splitbutton [label]="username" [model]="items" severity="secondary" [style]="{'background-color': 'transparent', 'border-color': 'transparent'}" />
                     </div>
                 </div>
             </div>
@@ -58,14 +58,6 @@ export class AppTopbar {
     constructor(public layoutService: LayoutService, keycloak: KeycloakService) {
         this.username = keycloak.getUsername();
         this.items = [
-            {
-                label: 'Update',
-                icon: 'pi pi-refresh'
-            },
-            {
-                label: 'Delete',
-                icon: 'pi pi-times'
-            },
             {
                 separator: true,
             },

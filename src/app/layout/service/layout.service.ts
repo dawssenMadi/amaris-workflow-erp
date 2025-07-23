@@ -31,7 +31,7 @@ export class LayoutService {
         primary: 'blue',
         surface: null,
         darkTheme: false,
-        menuMode: 'static'
+        menuMode: 'overlay'
     };
 
     _state: LayoutState = {
