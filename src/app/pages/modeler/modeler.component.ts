@@ -24,6 +24,7 @@ import {
     CamundaPlatformPropertiesProviderModule
 } from 'bpmn-js-properties-panel';
 import tokenSimulation from 'bpmn-js-token-simulation';
+import { AutoCompleteService } from '../service/modeler/auto-complete.service';
 
 
 // Interface pour typer le module de simulation
@@ -51,7 +52,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
     @Output() private importDone: EventEmitter<any> = new EventEmitter();
     @Input() private url: string;
 
-    constructor(private http: HttpClient, ) {}
+    constructor(private http: HttpClient,private autoCompleteService:AutoCompleteService ) {}
 
     ngAfterViewInit(): void {
         this.initializeBpmnJS();
@@ -80,6 +81,9 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             }
         });
 
+
+        this.loadEmptyDiagram();
+
         this.bpmnJS.on('import.done', (event: any) => {
             if (!event.error) {
                 const canvas = this.bpmnJS.get('canvas') as any;
@@ -88,7 +92,105 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             }
         });
 
-        this.loadEmptyDiagram();
+        const eventBus: any = this.bpmnJS.get('eventBus');
+// Monitor all text-related events
+        eventBus.on('directEditing.activate', (event) => {
+            console.log('Started editing:', event.element);
+
+            // Get the actual input element for real-time monitoring
+            const textbox = document.querySelector('.djs-direct-editing-content');
+            if (textbox) {
+                textbox.addEventListener('input', (inputEvent) => {
+                    const currentText = (inputEvent.target as HTMLElement).textContent || '';
+                    console.log('Real-time text:', currentText);
+
+                    if (currentText.length >= 2) {
+                        this.autoCompleteService.getSuggestions(currentText).subscribe(suggestions => {
+                            this.showAutoComplete(suggestions, inputEvent.target as HTMLElement);
+                        });
+                    } else {
+                        this.hideAutoComplete();
+                    }
+                });
+            }
+        });
+
+        eventBus.on('directEditing.complete', (event) => {
+            console.log('Finished editing. Final text:', event.newLabel);
+        });
+
+        eventBus.on('commandStack.element.updateLabel.executed', (event) => {
+            console.log('Label updated:', event.context.newLabel);
+        });
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+    private showAutoComplete(suggestions: string[], target: HTMLElement): void {
+        this.hideAutoComplete(); // Supprime l'ancienne liste
+
+        if (suggestions.length === 0) return;
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'autocomplete-dropdown';
+        dropdown.style.cssText = `
+        position: absolute;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-height: 150px;
+        overflow-y: auto;
+        z-index: 1000;
+        min-width: 150px;
+    `;
+
+        suggestions.forEach(suggestion => {
+            const item = document.createElement('div');
+            item.textContent = suggestion;
+            item.style.cssText = `
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        `;
+
+            item.addEventListener('mouseenter', () => {
+                item.style.backgroundColor = '#f0f0f0';
+            });
+
+            item.addEventListener('mouseleave', () => {
+                item.style.backgroundColor = 'white';
+            });
+
+            item.addEventListener('click', () => {
+                target.textContent = suggestion;
+                this.hideAutoComplete();
+            });
+
+            dropdown.appendChild(item);
+        });
+
+        const rect = target.getBoundingClientRect();
+        dropdown.style.left = rect.left + 'px';
+        dropdown.style.top = (rect.bottom + 5) + 'px';
+
+        document.body.appendChild(dropdown);
+    }
+
+    private hideAutoComplete(): void {
+        const existing = document.querySelector('.autocomplete-dropdown');
+        if (existing) {
+            existing.remove();
+        }
     }
 
 
