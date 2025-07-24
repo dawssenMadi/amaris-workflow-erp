@@ -1,7 +1,121 @@
 .modeler-container {
     display: flex;
+    flex-direction: column;
     width: 100%;
-    height: 90vh;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    //margin: -6rem -2rem 0 -2rem;
+    //padding: 6rem 2rem 0 2rem;
+}
+
+/* Styles pour la barre d'outils */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e5e9;
+    height: 50px;
+    z-index: 1000;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.toolbar-left,
+.toolbar-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.toolbar-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+
+    &:hover {
+        background: #e9ecef;
+        border-color: #007acc;
+        color: #007acc;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    i {
+        font-size: 16px;
+    }
+
+    span {
+        white-space: nowrap;
+    }
+}
+
+.upload-button:hover {
+    background: #e8f5e8;
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.download-button:hover {
+    background: #e8f4fd;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.new-button:hover {
+    background: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.help-button:hover {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.fullscreen-button:hover {
+    background: #e8f5e8;
+    border-color: #6f42c1;
+    color: #6f42c1;
+}
+
+/* Styles pour le mode plein écran */
+.modeler-container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    margin: 0;
+    padding: 0;
+}
+
+.modeler-container.fullscreen .toolbar {
+    z-index: 100000;
+}
+/* Zone principale */
+.main-content {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 50px);
     position: relative;
     overflow: hidden;
 }
@@ -11,9 +125,17 @@
     background-color: #ffffff;
     transition: margin-right 0.3s ease;
     overflow: hidden;
+    position: relative;
+}
+
+.bpmn-container.with-panel {
+    margin-right: 320px;
 }
 
 .properties-panel-wrapper {
+    position: absolute;
+    right: 0;
+    top: 0;
     width: 320px;
     height: 100%;
     display: flex;
@@ -22,12 +144,42 @@
     border-left: 1px solid #e1e5e9;
     transition: transform 0.3s ease;
     overflow: hidden;
+    z-index: 10;
 }
 
 .properties-panel-wrapper.hidden {
     transform: translateX(100%);
-    position: absolute;
-    right: 0;
+}
+
+.properties-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid #e1e5e9;
+    font-weight: 600;
+    color: #495057;
+    flex-shrink: 0;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #6c757d;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    i {
+        font-size: 14px;
+    }
 }
 
 .properties-panel {
@@ -35,35 +187,104 @@
     overflow: hidden;
 }
 
-.modeler-container * {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+.show-panel-button {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &:hover {
+        background: #f8f9fa;
+        border-color: #007acc;
+        transform: scale(1.05);
+    }
+
+    i {
+        font-size: 16px;
+        color: #495057;
+    }
 }
 
-.modeler-container *::-webkit-scrollbar {
-    display: none;
+/* Styles pour les icônes de templates */
+::ng-deep .template-icon {
+    pointer-events: none; /* Éviter l'interférence avec les interactions BPMN */
+    z-index: 10;
+
+    circle {
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    }
+
+    svg {
+        width: 14px;
+        height: 14px;
+        transform: translate(2px, 2px);
+    }
 }
 
-::ng-deep .bio-properties-panel {
-    overflow: hidden !important;
+/* Animation d'apparition pour les icônes */
+::ng-deep .template-icon {
+    animation: fadeInScale 0.3s ease-out;
 }
 
-::ng-deep .bio-properties-panel-scroll {
-    overflow: hidden !important;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
-::ng-deep .bio-properties-panel-scroll::-webkit-scrollbar {
-    display: none;
+/* Améliorer la visibilité des icônes sur différents fonds */
+::ng-deep .template-icon circle {
+    stroke: #ccc;
+    stroke-width: 1;
+    fill: rgba(255, 255, 255, 0.95);
 }
 
-::ng-deep .bio-properties-panel-scroll.with-scroll {
-    overflow-y: auto !important;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+/* Hover effect sur les éléments avec templates */
+::ng-deep .djs-element.has-template:hover .template-icon circle {
+    stroke: #007acc;
+    stroke-width: 2;
 }
 
-::ng-deep .bio-properties-panel-scroll.with-scroll::-webkit-scrollbar {
-    display: none;
+/* Style pour indiquer qu'un élément a un template appliqué */
+::ng-deep .djs-element.has-template {
+    .djs-visual rect,
+    .djs-visual path {
+        stroke-width: 2;
+        stroke: #007acc;
+    }
+}
+
+/* Responsive pour petits écrans */
+@media (max-width: 768px) {
+    .properties-panel-wrapper {
+        width: 280px;
+    }
+
+    .bpmn-container.with-panel {
+        margin-right: 280px;
+    }
+
+    .toolbar-button span {
+        display: none;
+    }
+
+    .toolbar-button {
+        padding: 8px;
+    }
 }

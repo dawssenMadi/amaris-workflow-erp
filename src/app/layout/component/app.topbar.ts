@@ -17,7 +17,10 @@ import { KeycloakService } from '../../pages/service/authentication/keycloak.ser
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
-            <img src="assets/logos/bouygues .webp" alt="Bouygues Logo" style="height: 2.5rem; margin-left: 0.5rem;" />
+            <img src="assets/logos/bouygues.png" alt="Bouygues Logo" style="height: 2.5rem; margin-left: 0.5rem;" />
+            <img src="assets/logos/plus.png" alt="Amaris Logo" style="height: 1rem; margin-left: 1.5rem;" />
+
+            <img src="assets/logos/amaris.png" alt="Amaris Logo" style="height: 2rem; margin-left: 1.5rem;" />
         </div>
         <div style="flex: 1; display: flex; align-items: center;">
             <div class="layout-topbar-actions" style="display: flex; justify-content: flex-end; align-items: center; flex: 1;">
@@ -47,7 +50,7 @@ import { KeycloakService } from '../../pages/service/authentication/keycloak.ser
                     </div>
                 </div>
             </div>
-            <img src="assets/logos/amaris.webp" alt="Amaris Logo" style="height: 2.5rem; margin-left: 1.5rem;" />
+
         </div>
     </div>`
 })

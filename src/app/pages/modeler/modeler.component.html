@@ -1,17 +1,50 @@
-<div class="modeler-container">
-    <div #ref class="bpmn-container"></div>
-    <div class="properties-panel-wrapper" [class.hidden]="isPanelHidden">
-        <div class="properties-panel-header">
-            <span>Propriétés</span>
-            <button class="toggle-button" (click)="togglePanel()" title="Masquer le panneau">
-                <i class="pi pi-chevron-right"></i>
+<div class="modeler-container" [class.fullscreen]="isFullscreen">
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button class="toolbar-button upload-button" (click)="triggerFileUpload()" title="Importer un diagramme BPMN">
+                <i class="pi pi-upload"></i>
+                <span>Importer BPMN</span>
+            </button>
+            <button class="toolbar-button download-button" (click)="downloadDiagram()" title="Télécharger le diagramme">
+                <i class="pi pi-download"></i>
+                <span>Télécharger</span>
+            </button>
+            <button class="toolbar-button new-button" (click)="createNewDiagram()" title="Nouveau diagramme">
+                <i class="pi pi-plus"></i>
+                <span>Nouveau</span>
             </button>
         </div>
-        <div #propertiesPanel class="properties-panel"></div>
+        <div class="toolbar-right">
+            <button class="toolbar-button fullscreen-button" (click)="toggleFullscreen()" [title]="isFullscreen ? 'Quitter le plein écran' : 'Mode plein écran'">
+                <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+                <span>{{ isFullscreen ? 'Quitter' : 'Plein écran' }}</span>
+            </button>
+            <button class="toolbar-button help-button" (click)="showCreateAppendHelp()" title="Aide sur les templates">
+                <i class="pi pi-question-circle"></i>
+                <span>Aide</span>
+            </button>
+        </div>
     </div>
-    @if (isPanelHidden) {
-        <button class="show-panel-button" (click)="togglePanel()" title="Afficher le panneau">
-            <i class="pi pi-sliders-h"></i>
-        </button>
-    }
+
+    <input type="file" #fileInput (change)="onFileSelected($event)" accept=".bpmn,.xml" style="display: none;">
+
+    <div class="main-content">
+        <div #ref class="bpmn-container" [class.with-panel]="!isPanelHidden"></div>
+
+        <div class="properties-panel-wrapper" [class.hidden]="isPanelHidden">
+            <div class="properties-panel-header">
+                <span>Propriétés</span>
+                <button class="toggle-button" (click)="togglePanel()" title="Masquer le panneau">
+                    <i class="pi pi-chevron-right"></i>
+                </button>
+            </div>
+            <div #propertiesPanel class="properties-panel"></div>
+        </div>
+
+        @if (isPanelHidden) {
+            <button class="show-panel-button" (click)="togglePanel()" title="Afficher le panneau">
+                <i class="pi pi-sliders-h"></i>
+            </button>
+        }
+    </div>
 </div>

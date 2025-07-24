@@ -5,7 +5,7 @@ import { Observable, of } from 'rxjs';
     providedIn: 'root'
 })
 export class AutoCompleteService {
-    private suggestions = [
+    private basicActivities = [
         'Valider la saisie',
         'Traiter le paiement',
         'Envoyer un email',
@@ -13,30 +13,82 @@ export class AutoCompleteService {
         'Générer un rapport',
         'Vérifier les permissions',
         'Créer un utilisateur',
-        'Supprimer un enregistrement',
-        'Archiver les données',
-        'Sauvegarder le système',
-        'Réviser le document',
-        'Approuver la demande',
-        'Rejeter la candidature',
-        'Calculer le total',
-        'Transformer les données',
-        'Exporter les résultats',
-        'Importer un fichier',
-        'Synchroniser les données',
-        'Notifier l\'utilisateur',
-        'Enregistrer l\'activité'
+        'Supprimer un enregistrement'
     ];
 
-    getSuggestions(query: string): Observable<string[]> {
+    private camundaConnectors = [
+        'REST Connector',
+        'Slack Connector',
+        'SendGrid Connector',
+        'Google Drive Connector',
+        'Microsoft Teams Connector',
+        'AWS Lambda Connector',
+        'HTTP Webhook Connector',
+        'RabbitMQ Connector',
+        'Kafka Connector',
+        'GraphQL Connector',
+        'SOAP Connector',
+        'Twilio SMS Connector',
+        'Discord Connector',
+        'GitHub Connector',
+        'GitLab Connector',
+        'PostgreSQL Connector',
+        'MySQL Connector',
+        'MongoDB Connector',
+        'Redis Connector',
+        'Elasticsearch Connector'
+    ];
+
+    private camundaElements = [
+        'Service Task',
+        'User Task',
+        'Script Task',
+        'Send Task',
+        'Receive Task',
+        'Manual Task',
+        'Business Rule Task',
+        'Call Activity',
+        'Sub Process',
+        'Event Sub Process',
+        'Start Event',
+        'End Event',
+        'Intermediate Event',
+        'Boundary Event',
+        'Timer Event',
+        'Message Event',
+        'Signal Event',
+        'Error Event',
+        'Escalation Event',
+        'Compensation Event',
+        'Conditional Event',
+        'Link Event',
+        'Exclusive Gateway',
+        'Parallel Gateway',
+        'Inclusive Gateway',
+        'Event Gateway',
+        'Complex Gateway'
+    ];
+
+    getSuggestions(query: string, elementType?: string): Observable<string[]> {
         if (query.length < 2) {
             return of([]);
         }
 
-        const filtered = this.suggestions.filter(suggestion =>
+        let allSuggestions = [
+            ...this.basicActivities,
+            ...this.camundaConnectors,
+            ...this.camundaElements
+        ];
+
+        // Filtrer selon le type d'élément si spécifié
+        if (elementType === 'bpmn:ServiceTask') {
+            allSuggestions = [...this.camundaConnectors, ...this.basicActivities];
+        }
+
+        const filtered = allSuggestions.filter(suggestion =>
             suggestion.toLowerCase().includes(query.toLowerCase())
         );
 
-        return of(filtered.slice(0, 5)); // Limite à 5 suggestions
+        return of(filtered.slice(0, 8)); // Augmenté à 8 suggestions
     }
 }
