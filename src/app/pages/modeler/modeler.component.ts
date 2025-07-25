@@ -958,12 +958,26 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
                 // Nettoyer les classes précédentes
                 gfx.classList.remove('audit-failed', 'audit-passed');
 
-                // Appliquer le style approprié
+                // Supprimer les anciens gestionnaires d'événements de tooltip pour éviter qu'ils ne persistent
+                const existingHandlers = (gfx as any)._auditHandlers;
+                if (existingHandlers) {
+                    gfx.removeEventListener('mouseenter', existingHandlers.showTooltip);
+                    gfx.removeEventListener('mouseleave', existingHandlers.hideTooltip);
+                    delete (gfx as any)._auditHandlers;
+                }
+
+                // Appliquer le style approprié en fonction du résultat de l'audit
                 if (!result.resultatAudit) {
+                    // Élément non conforme: ajouter la classe et le tooltip d'erreur
                     gfx.classList.add('audit-failed');
-                    this.addErrorTooltip(element, result.erreurs || []);
-                    console.log(`🔴 Élément ${elementId} non conforme:`, result.erreurs);
+
+                    // N'ajouter le tooltip que si des erreurs sont présentes
+                    if (result.erreurs && result.erreurs.length > 0) {
+                        this.addErrorTooltip(element, result.erreurs);
+                        console.log(`🔴 Élément ${elementId} non conforme:`, result.erreurs);
+                    }
                 } else {
+                    // Élément conforme: pas de tooltip nécessaire
                     console.log(`🟢 Élément ${elementId} conforme`);
                 }
             }
