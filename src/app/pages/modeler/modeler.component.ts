@@ -42,6 +42,24 @@ interface ElementTemplatesLoader {
     setTemplates(templates: any[]): void;
 }
 
+interface ElementRegistry {
+    get(id: string): any;
+    getAll(): any[];
+    filter(fn: (element: any) => boolean): any[];
+}
+
+// Interfaces pour l'audit BPMN
+interface AuditResult {
+    idActivite: string;
+    resultatAudit: boolean;
+    erreurs?: string[];
+}
+
+interface AuditRule {
+    name: string;
+    check: (element: any) => { passed: boolean; errors: string[] };
+}
+
 
 
 @Component({
@@ -55,6 +73,8 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
     isPanelHidden = true;
     isFullscreen = false;
     private elementTemplates: any[] = [];
+    private currentAuditResults: Map<string, AuditResult> = new Map();
+    private auditRules: AuditRule[] = [];
 
     @ViewChild('ref', { static: true }) private el: ElementRef;
     @ViewChild('propertiesPanel', { static: true }) private propertiesPanel: ElementRef;
@@ -64,7 +84,9 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
     constructor(
         private http: HttpClient,
         private autoCompleteService: AutoCompleteService,
-    ) {}
+    ) {
+        this.initializeAuditRules();
+    }
 
     ngAfterViewInit(): void {
         this.loadConnectorTemplates().then(() => {
@@ -393,5 +415,314 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
 
     toggleFullscreen(): void {
         this.isFullscreen = !this.isFullscreen;
+    }
+
+    // ====== MÉTHODES D'AUDIT BPMN ======
+
+    /**
+     * Initialise les règles d'audit BPMN
+     */
+    private initializeAuditRules(): void {
+        this.auditRules = [
+            {
+                name: 'Nommage des activités - Verbe à l\'infinitif',
+                check: (element: any) => {
+                    if (this.isTaskElement(element)) {
+                        const name = element.businessObject?.name || '';
+                        if (!name.trim()) {
+                            return { passed: false, errors: ['L\'activité doit avoir un nom'] };
+                        }
+
+                        // Vérifier si le nom commence par un verbe à l'infinitif
+                        const infinitiveVerbs = [
+                            'analyser', 'traiter', 'valider', 'vérifier', 'envoyer', 'recevoir',
+                            'créer', 'supprimer', 'modifier', 'calculer', 'générer', 'importer',
+                            'exporter', 'sauvegarder', 'charger', 'transformer', 'convertir',
+                            'approuver', 'rejeter', 'notifier', 'alerter', 'contrôler'
+                        ];
+
+                        const firstWord = name.trim().split(' ')[0].toLowerCase();
+                        const startsWithInfinitive = infinitiveVerbs.some(verb =>
+                            firstWord === verb || firstWord.startsWith(verb)
+                        );
+
+                        if (!startsWithInfinitive) {
+                            return {
+                                passed: false,
+                                errors: [`Le nom "${name}" devrait commencer par un verbe à l'infinitif`]
+                            };
+                        }
+                    }
+                    return { passed: true, errors: [] };
+                }
+            },
+            {
+                name: 'Longueur du nom des activités',
+                check: (element: any) => {
+                    if (this.isTaskElement(element)) {
+                        const name = element.businessObject?.name || '';
+                        if (name.length > 50) {
+                            return {
+                                passed: false,
+                                errors: [`Le nom "${name}" est trop long (${name.length} caractères). Maximum recommandé: 50 caractères`]
+                            };
+                        }
+                        if (name.length < 3) {
+                            return {
+                                passed: false,
+                                errors: [`Le nom "${name}" est trop court. Minimum recommandé: 3 caractères`]
+                            };
+                        }
+                    }
+                    return { passed: true, errors: [] };
+                }
+            },
+            {
+                name: 'Présence d\'événements de fin',
+                check: (element: any) => {
+                    if (element.type === 'bpmn:Process') {
+                        const elementRegistry = this.bpmnJS.get('elementRegistry') as ElementRegistry;
+                        const endEvents = elementRegistry.filter((el: any) => el.type === 'bpmn:EndEvent');
+                        if (endEvents.length === 0) {
+                            return {
+                                passed: false,
+                                errors: ['Le processus doit avoir au moins un événement de fin']
+                            };
+                        }
+                    }
+                    return { passed: true, errors: [] };
+                }
+            }
+        ];
+    }
+
+    /**
+     * Vérifie si un élément est une activité/tâche
+     */
+    private isTaskElement(element: any): boolean {
+        return element.type === 'bpmn:Task' ||
+               element.type === 'bpmn:UserTask' ||
+               element.type === 'bpmn:ServiceTask' ||
+               element.type === 'bpmn:ScriptTask' ||
+               element.type === 'bpmn:BusinessRuleTask' ||
+               element.type === 'bpmn:ManualTask' ||
+               element.type === 'bpmn:SendTask' ||
+               element.type === 'bpmn:ReceiveTask';
+    }
+
+    /**
+     * Lance l'audit BPMN du diagramme
+     */
+    async auditBpmnDiagram(): Promise<void> {
+        try {
+            // Nettoyer les résultats précédents
+            this.clearAuditResults();
+
+            const elementRegistry = this.bpmnJS.get('elementRegistry') as ElementRegistry;
+            const allElements = elementRegistry.getAll();
+
+            // Filtrer les éléments à auditer (activités principalement)
+            const elementsToAudit = allElements.filter(element =>
+                this.isTaskElement(element) || element.type === 'bpmn:Process'
+            );
+
+            console.log(`🔍 Début de l'audit BPMN - ${elementsToAudit.length} éléments à analyser`);
+
+            // Simuler un appel API avec des données mockées
+            const mockAuditResults = this.generateMockAuditResults(elementsToAudit);
+
+            // Traitement des résultats d'audit
+            this.processAuditResults(mockAuditResults);
+
+            // Appliquer la mise en évidence visuelle
+            this.applyAuditVisualization();
+
+            // Afficher le résumé
+            this.showAuditSummary();
+
+        } catch (error) {
+            console.error('Erreur lors de l\'audit BPMN:', error);
+            alert('Erreur lors de l\'audit du diagramme BPMN');
+        }
+    }
+
+    /**
+     * Génère des résultats d'audit mockés (simulation API)
+     */
+    private generateMockAuditResults(elements: any[]): AuditResult[] {
+        const results: AuditResult[] = [];
+
+        elements.forEach(element => {
+            const errors: string[] = [];
+            let passed = true;
+
+            // Appliquer toutes les règles d'audit
+            this.auditRules.forEach(rule => {
+                const ruleResult = rule.check(element);
+                if (!ruleResult.passed) {
+                    passed = false;
+                    errors.push(...ruleResult.errors);
+                }
+            });
+
+            // Simulation de résultats variables pour démonstration
+            const randomFactor = Math.random();
+            if (this.isTaskElement(element) && randomFactor > 0.7) {
+                passed = false;
+                errors.push('Règle de nommage non respectée (demo)');
+            }
+
+            results.push({
+                idActivite: element.id,
+                resultatAudit: passed,
+                erreurs: errors.length > 0 ? errors : undefined
+            });
+        });
+
+        return results;
+    }
+
+    /**
+     * Traite les résultats d'audit et les stocke
+     */
+    private processAuditResults(results: AuditResult[]): void {
+        this.currentAuditResults.clear();
+
+        results.forEach(result => {
+            this.currentAuditResults.set(result.idActivite, result);
+        });
+    }
+
+    /**
+     * Applique la mise en évidence visuelle des résultats d'audit
+     */
+    private applyAuditVisualization(): void {
+        const elementRegistry = this.bpmnJS.get('elementRegistry') as ElementRegistry;
+
+        this.currentAuditResults.forEach((result, elementId) => {
+            const element = elementRegistry.get(elementId);
+            if (element) {
+                const gfx = this.getElementGraphics(element);
+                if (gfx) {
+                    // Nettoyer les classes précédentes
+                    gfx.classList.remove('audit-failed', 'audit-passed');
+
+                    // Appliquer seulement le style rouge aux éléments non conformes
+                    if (!result.resultatAudit) {
+                        gfx.classList.add('audit-failed');
+
+                        // Ajouter un gestionnaire de survol pour afficher les erreurs
+                        this.addErrorTooltip(element, result.erreurs || []);
+                    }
+                    // Les éléments conformes restent avec leur style par défaut (pas de classe ajoutée)
+                }
+            }
+        });
+    }
+
+    /**
+     * Récupère les graphiques d'un élément
+     */
+    private getElementGraphics(element: any): HTMLElement | null {
+        try {
+            const canvas = this.bpmnJS.get('canvas') as any;
+            return canvas.getGraphics(element);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * Ajoute une info-bulle d'erreur à un élément
+     */
+    private addErrorTooltip(element: any, errors: string[]): void {
+        const gfx = this.getElementGraphics(element);
+        if (!gfx || errors.length === 0) return;
+
+        const showTooltip = (event: MouseEvent) => {
+            this.hideErrorTooltip();
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'audit-tooltip';
+            tooltip.innerHTML = `
+                <strong>Erreurs d'audit:</strong><br>
+                ${errors.map(error => `• ${error}`).join('<br>')}
+            `;
+
+            tooltip.style.left = event.pageX + 'px';
+            tooltip.style.top = (event.pageY - 60) + 'px';
+
+            document.body.appendChild(tooltip);
+        };
+
+        const hideTooltip = () => {
+            this.hideErrorTooltip();
+        };
+
+        gfx.addEventListener('mouseenter', showTooltip);
+        gfx.addEventListener('mouseleave', hideTooltip);
+    }
+
+    /**
+     * Cache l'info-bulle d'erreur
+     */
+    private hideErrorTooltip(): void {
+        const existing = document.querySelector('.audit-tooltip');
+        if (existing) {
+            existing.remove();
+        }
+    }
+
+    /**
+     * Affiche le résumé des résultats d'audit
+     */
+    private showAuditSummary(): void {
+        const totalElements = this.currentAuditResults.size;
+        const failedElements = Array.from(this.currentAuditResults.values())
+            .filter(result => !result.resultatAudit).length;
+        const passedElements = totalElements - failedElements;
+
+        const successRate = totalElements > 0 ? ((passedElements / totalElements) * 100).toFixed(1) : '0';
+
+        const message = `
+📊 RÉSULTATS DE L'AUDIT BPMN
+
+✅ Éléments conformes: ${passedElements}
+❌ Éléments non conformes: ${failedElements}
+📈 Taux de conformité: ${successRate}%
+
+${failedElements > 0 ?
+    '⚠️ Les éléments non conformes sont encadrés en rouge et clignotent.\nSurvole-les pour voir les détails des erreurs.' :
+    '🎉 Félicitations ! Tous les éléments respectent les bonnes pratiques BPMN.'}
+        `;
+
+        alert(message);
+
+        console.log('📊 Résultats détaillés de l\'audit:');
+        this.currentAuditResults.forEach((result, elementId) => {
+            console.log(`${result.resultatAudit ? '✅' : '❌'} ${elementId}:`, result);
+        });
+    }
+
+    /**
+     * Nettoie les résultats d'audit précédents
+     */
+    private clearAuditResults(): void {
+        // Nettoyer les classes CSS
+        const elementRegistry = this.bpmnJS?.get('elementRegistry') as ElementRegistry;
+        if (elementRegistry) {
+            elementRegistry.getAll().forEach(element => {
+                const gfx = this.getElementGraphics(element);
+                if (gfx) {
+                    gfx.classList.remove('audit-failed', 'audit-passed');
+                }
+            });
+        }
+
+        // Nettoyer les données
+        this.currentAuditResults.clear();
+
+        // Nettoyer les tooltips
+        this.hideErrorTooltip();
     }
 }

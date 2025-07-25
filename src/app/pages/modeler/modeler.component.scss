@@ -50,6 +50,18 @@
         color: #007acc;
     }
 
+    &.audit-button {
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
+
+        &:hover {
+            background: #218838;
+            border-color: #1e7e34;
+            color: white;
+        }
+    }
+
     &:active {
         transform: translateY(1px);
     }
@@ -266,6 +278,53 @@
     .djs-visual path {
         stroke-width: 2;
         stroke: #007acc;
+    }
+}
+
+/* Styles pour l'audit BPMN */
+::ng-deep .audit-failed {
+    .djs-visual rect,
+    .djs-visual circle,
+    .djs-visual path,
+    .djs-visual polygon {
+        stroke: #dc3545 !important;
+        stroke-width: 3px !important;
+        stroke-dasharray: 5,5 !important;
+        animation: auditPulse 2s infinite;
+    }
+}
+
+@keyframes auditPulse {
+    0%, 100% {
+        stroke-opacity: 1;
+    }
+    50% {
+        stroke-opacity: 0.5;
+    }
+}
+
+/* Tooltip pour afficher les erreurs d'audit */
+.audit-tooltip {
+    position: absolute;
+    background: #dc3545;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 300px;
+    pointer-events: none;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #dc3545;
     }
 }
 

@@ -13,6 +13,10 @@
                 <i class="pi pi-plus"></i>
                 <span>Nouveau</span>
             </button>
+            <button class="toolbar-button audit-button" (click)="auditBpmnDiagram()" title="Audit BPMN - Vérifier les bonnes pratiques">
+                <i class="pi pi-shield"></i>
+                <span>Audit BPMN</span>
+            </button>
         </div>
         <div class="toolbar-right">
             <button class="toolbar-button fullscreen-button" (click)="toggleFullscreen()" [title]="isFullscreen ? 'Quitter le plein écran' : 'Mode plein écran'">
