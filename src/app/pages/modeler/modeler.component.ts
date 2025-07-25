@@ -36,6 +36,7 @@ import '@bpmn-io/element-template-chooser/dist/element-template-chooser.css';
 import tokenSimulation from 'bpmn-js-token-simulation';
 import ElementTemplateChooserModule from '@bpmn-io/element-template-chooser';
 import { AutoCompleteService } from '../service/modeler/auto-complete.service';
+import { AuditService, AuditRequest, AuditResponse } from '../service/audit/audit.service';
 
 
 interface ElementTemplatesLoader {
@@ -84,6 +85,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
     constructor(
         private http: HttpClient,
         private autoCompleteService: AutoCompleteService,
+        private auditService: AuditService
     ) {
         this.initializeAuditRules();
     }
@@ -229,6 +231,19 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         });
 
         const eventBus: any = this.bpmnJS.get('eventBus');
+
+        // Événements pour l'audit en temps réel
+        eventBus.on('element.changed', (event: any) => {
+            this.handleElementChanged(event.element);
+        });
+
+        eventBus.on('directEditing.complete', (event: any) => {
+            this.handleElementNameChanged(event.element);
+        });
+
+        eventBus.on('shape.added', (event: any) => {
+            this.handleElementAdded(event.element);
+        });
 
 
 
@@ -410,7 +425,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
     }
 
     createNewDiagram(): void {
-            this.loadEmptyDiagram();
+        this.loadEmptyDiagram();
     }
 
     toggleFullscreen(): void {
@@ -500,6 +515,11 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
      * Vérifie si un élément est une activité/tâche
      */
     private isTaskElement(element: any): boolean {
+        // Vérification de sécurité pour éviter les erreurs
+        if (!element || !element.type) {
+            return false;
+        }
+
         return element.type === 'bpmn:Task' ||
                element.type === 'bpmn:UserTask' ||
                element.type === 'bpmn:ServiceTask' ||
@@ -538,7 +558,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             this.applyAuditVisualization();
 
             // Afficher le résumé
-            this.showAuditSummary();
+            // this.showAuditSummary();
 
         } catch (error) {
             console.error('Erreur lors de l\'audit BPMN:', error);
@@ -614,7 +634,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
                         // Ajouter un gestionnaire de survol pour afficher les erreurs
                         this.addErrorTooltip(element, result.erreurs || []);
                     }
-                    // Les éléments conformes restent avec leur style par défaut (pas de classe ajoutée)
+                    // Les éléments conformes restent avec leur style par d��faut (pas de classe ajoutée)
                 }
             }
         });
@@ -639,24 +659,96 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         const gfx = this.getElementGraphics(element);
         if (!gfx || errors.length === 0) return;
 
+        // Supprimer les anciens event listeners pour éviter les doublons
+        const existingHandlers = (gfx as any)._auditHandlers;
+        if (existingHandlers) {
+            gfx.removeEventListener('mouseenter', existingHandlers.showTooltip);
+            gfx.removeEventListener('mouseleave', existingHandlers.hideTooltip);
+        }
+
         const showTooltip = (event: MouseEvent) => {
             this.hideErrorTooltip();
 
             const tooltip = document.createElement('div');
             tooltip.className = 'audit-tooltip';
+
+            // Styles de base pour l'infobulle
+            tooltip.style.position = 'absolute';
+            tooltip.style.zIndex = '10000';
+            tooltip.style.backgroundColor = 'rgba(35, 35, 35, 0.95)';
+            tooltip.style.color = '#fff';
+            tooltip.style.borderRadius = '4px';
+            tooltip.style.padding = '10px 15px';
+            tooltip.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.5)';
+            tooltip.style.maxWidth = '350px';
+            tooltip.style.fontSize = '14px';
+            tooltip.style.border = '1px solid #ff3d3d';
+
+            // Contenu de l'infobulle
             tooltip.innerHTML = `
-                <strong>Erreurs d'audit:</strong><br>
-                ${errors.map(error => `• ${error}`).join('<br>')}
+                <div style="font-weight: bold; margin-bottom: 10px; color: #ff3d3d; border-bottom: 1px solid #555; padding-bottom: 5px;">
+                    <span style="font-size: 16px;">🔴 Erreurs d'audit API</span>
+                </div>
+                <div style="max-height: 200px; overflow-y: auto;">
+                    ${errors.map(error =>
+                        `<div style="margin-bottom: 8px; display: flex; align-items: flex-start;">
+                            <span style="margin-right: 5px; color: #ff5252;">•</span>
+                            <span>${error}</span>
+                         </div>`
+                    ).join('')}
+                </div>
+                <div style="font-size: 12px; margin-top: 8px; color: #aaa; text-align: right;">
+                    ${errors.length} erreur${errors.length > 1 ? 's' : ''} détectée${errors.length > 1 ? 's' : ''}
+                </div>
             `;
 
-            tooltip.style.left = event.pageX + 'px';
-            tooltip.style.top = (event.pageY - 60) + 'px';
+            // Positionnement intelligent de l'infobulle
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
 
+            // Position initiale relative à la souris
+            let left = event.pageX + 15;
+            let top = event.pageY - 15;
+
+            // Calcul de la taille de l'infobulle
             document.body.appendChild(tooltip);
+            const tooltipWidth = tooltip.offsetWidth;
+            const tooltipHeight = tooltip.offsetHeight;
+
+            // Ajustement si l'infobulle dépasse à droite
+            if (left + tooltipWidth > viewportWidth - 20) {
+                left = event.pageX - tooltipWidth - 15;
+            }
+
+            // Ajustement si l'infobulle dépasse en bas
+            if (top + tooltipHeight > viewportHeight - 20) {
+                top = viewportHeight - tooltipHeight - 20;
+            }
+
+            // Ajustement si l'infobulle dépasse en haut
+            if (top < 20) {
+                top = 20;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+
+            // Effet de transition
+            tooltip.style.opacity = '0';
+            tooltip.style.transition = 'opacity 0.2s ease-in-out';
+            setTimeout(() => {
+                tooltip.style.opacity = '1';
+            }, 10);
         };
 
         const hideTooltip = () => {
             this.hideErrorTooltip();
+        };
+
+        // Stocker les références des handlers pour pouvoir les supprimer plus tard
+        (gfx as any)._auditHandlers = {
+            showTooltip,
+            hideTooltip
         };
 
         gfx.addEventListener('mouseenter', showTooltip);
@@ -671,37 +763,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         if (existing) {
             existing.remove();
         }
-    }
-
-    /**
-     * Affiche le résumé des résultats d'audit
-     */
-    private showAuditSummary(): void {
-        const totalElements = this.currentAuditResults.size;
-        const failedElements = Array.from(this.currentAuditResults.values())
-            .filter(result => !result.resultatAudit).length;
-        const passedElements = totalElements - failedElements;
-
-        const successRate = totalElements > 0 ? ((passedElements / totalElements) * 100).toFixed(1) : '0';
-
-        const message = `
-📊 RÉSULTATS DE L'AUDIT BPMN
-
-✅ Éléments conformes: ${passedElements}
-❌ Éléments non conformes: ${failedElements}
-📈 Taux de conformité: ${successRate}%
-
-${failedElements > 0 ?
-    '⚠️ Les éléments non conformes sont encadrés en rouge et clignotent.\nSurvole-les pour voir les détails des erreurs.' :
-    '🎉 Félicitations ! Tous les éléments respectent les bonnes pratiques BPMN.'}
-        `;
-
-        alert(message);
-
-        console.log('📊 Résultats détaillés de l\'audit:');
-        this.currentAuditResults.forEach((result, elementId) => {
-            console.log(`${result.resultatAudit ? '✅' : '❌'} ${elementId}:`, result);
-        });
     }
 
     /**
@@ -724,5 +785,224 @@ ${failedElements > 0 ?
 
         // Nettoyer les tooltips
         this.hideErrorTooltip();
+    }
+
+    // ====== MÉTHODES D'AUDIT EN TEMPS RÉEL ======
+
+    /**
+     * Gère les changements d'un élément (modification de propriétés)
+     */
+    private handleElementChanged(element: any): void {
+        if (this.shouldAuditElement(element)) {
+            // Délai pour éviter les appels trop fréquents
+            setTimeout(() => {
+                this.sendAuditRequest(element);
+            }, 500);
+        }
+    }
+
+    /**
+     * Gère la fin de saisie du nom d'un élément
+     */
+    private handleElementNameChanged(element: any): void {
+        // Vérification de sécurité complète
+        if (!element || !element.id || !element.type) {
+            console.warn('⚠️ Élément invalide reçu dans handleElementNameChanged:', element);
+            return;
+        }
+
+        if (this.shouldAuditElement(element)) {
+            console.log('🏷️ Nom de l\'élément modifié:', element.id, element.businessObject?.name);
+            this.sendAuditRequest(element);
+        }
+    }
+
+    /**
+     * Gère l'ajout d'un nouvel élément
+     */
+    private handleElementAdded(element: any): void {
+        if (this.shouldAuditElement(element)) {
+            console.log('➕ Nouvel élément ajouté:', element.id, element.type);
+            // Petit délai pour s'assurer que l'élément est bien initialisé
+            setTimeout(() => {
+                this.sendAuditRequest(element);
+            }, 100);
+        }
+    }
+
+    /**
+     * Vérifie si un élément doit être audité
+     */
+    private shouldAuditElement(element: any): boolean {
+        return this.isTaskElement(element) ||
+            element.type === 'bpmn:StartEvent' ||
+            element.type === 'bpmn:EndEvent' ||
+            element.type === 'bpmn:ExclusiveGateway' ||
+            element.type === 'bpmn:ParallelGateway' ||
+            element.type === 'bpmn:InclusiveGateway';
+    }
+
+    /**
+     * Envoie une requête d'audit pour un élément spécifique
+     */
+    private sendAuditRequest(element: any): void {
+        const auditRequest: AuditRequest = {
+            nomSymbol: element.businessObject?.name || '',
+            typeSymbol: this.getElementTypeForAudit(element.type),
+            idSymbol: element.id
+        };
+
+        console.log('📤 Audit pour:', auditRequest);
+
+        // Temporairement, utiliser les règles locales au lieu de l'API
+        // Remplacez cette section par l'appel API quand le backend sera prêt
+        this.processLocalAudit(element);
+
+        // Code pour l'API (désactivé temporairement) :
+        // this.auditService.auditSymbol(auditRequest).subscribe({
+        //     next: (response: AuditResponse) => {
+        //         console.log('📥 Réponse audit reçue:', response);
+        //         this.processIndividualAuditResult(response);
+        //     },
+        //     error: (error) => {
+        //         console.error('❌ Erreur lors de l\'audit:', error);
+        //         this.handleAuditError(element);
+        //     }
+        // });
+    }
+
+    /**
+     * Traite l'audit localement sans appel à l'API
+     */
+    private processLocalAudit(element: any): void {
+        console.log('🔍 Audit local pour:', element.id);
+
+        const errors: string[] = [];
+        let passed = true;
+
+        // Appliquer toutes les règles d'audit locales
+        this.auditRules.forEach(rule => {
+            const ruleResult = rule.check(element);
+            if (!ruleResult.passed) {
+                passed = false;
+                errors.push(...ruleResult.errors);
+            }
+        });
+
+        // Créer un résultat d'audit conforme à l'interface AuditResponse
+        const localAuditResult: AuditResponse = {
+            idSymbol: element.id,
+            resultatAudit: passed,
+            erreurs: errors.length > 0 ? errors : undefined
+        };
+
+        // Pour le logging, on peut afficher plus d'informations
+        console.log(`Audit local pour élément: ${element.businessObject?.name || 'Sans nom'} (${element.type})`);
+
+        // Traiter le résultat comme s'il venait de l'API
+        this.processIndividualAuditResult(localAuditResult);
+    }
+
+    /**
+     * Convertit le type BPMN en type pour l'audit
+     */
+    private getElementTypeForAudit(bpmnType: string): string {
+        const typeMapping: { [key: string]: string } = {
+            'bpmn:Task': 'task',
+            'bpmn:UserTask': 'task',
+            'bpmn:ServiceTask': 'task',
+            'bpmn:ScriptTask': 'task',
+            'bpmn:BusinessRuleTask': 'task',
+            'bpmn:ManualTask': 'task',
+            'bpmn:SendTask': 'task',
+            'bpmn:ReceiveTask': 'task',
+            'bpmn:StartEvent': 'event',
+            'bpmn:EndEvent': 'event',
+            'bpmn:IntermediateThrowEvent': 'event',
+            'bpmn:IntermediateCatchEvent': 'event',
+            'bpmn:ExclusiveGateway': 'gateway',
+            'bpmn:ParallelGateway': 'gateway',
+            'bpmn:InclusiveGateway': 'gateway',
+            'bpmn:EventBasedGateway': 'gateway'
+        };
+
+        return typeMapping[bpmnType] || 'unknown';
+    }
+
+    /**
+     * Traite le résultat d'audit d'un élément individuel
+     */
+    private processIndividualAuditResult(response: AuditResponse): void {
+        // Mettre à jour le cache des résultats
+        this.currentAuditResults.set(response.idSymbol, {
+            idActivite: response.idSymbol,
+            resultatAudit: response.resultatAudit,
+            erreurs: response.erreurs
+        });
+
+        // Appliquer la mise en évidence visuelle pour cet élément
+        this.applyVisualFeedbackForElement(response.idSymbol);
+    }
+
+    /**
+     * Applique la mise en évidence visuelle pour un élément spécifique
+     */
+    private applyVisualFeedbackForElement(elementId: string): void {
+        const elementRegistry = this.bpmnJS.get('elementRegistry') as ElementRegistry;
+        const element = elementRegistry.get(elementId);
+        const result = this.currentAuditResults.get(elementId);
+
+        if (element && result) {
+            const gfx = this.getElementGraphics(element);
+            if (gfx) {
+                // Nettoyer les classes précédentes
+                gfx.classList.remove('audit-failed', 'audit-passed');
+
+                // Appliquer le style approprié
+                if (!result.resultatAudit) {
+                    gfx.classList.add('audit-failed');
+                    this.addErrorTooltip(element, result.erreurs || []);
+                    console.log(`🔴 Élément ${elementId} non conforme:`, result.erreurs);
+                } else {
+                    console.log(`🟢 Élément ${elementId} conforme`);
+                }
+            }
+        }
+    }
+
+    /**
+     * Gère les erreurs d'audit (fallback vers les règles locales)
+     */
+    private handleAuditError(element: any): void {
+        console.warn('⚠️ Utilisation des règles d\'audit locales pour:', element.id);
+
+        // Fallback vers les règles locales en cas d'erreur API
+        const errors: string[] = [];
+        let passed = true;
+
+        this.auditRules.forEach(rule => {
+            const ruleResult = rule.check(element);
+            if (!ruleResult.passed) {
+                passed = false;
+                errors.push(...ruleResult.errors);
+            }
+        });
+
+        const fallbackResult: AuditResponse = {
+            idSymbol: element.id,
+            resultatAudit: passed,
+            erreurs: errors.length > 0 ? errors : undefined
+        };
+
+        this.processIndividualAuditResult(fallbackResult);
+    }
+
+    /**
+     * Active/désactive l'audit en temps réel
+     */
+    enableRealTimeAudit(enabled: boolean): void {
+        // Cette méthode peut être utilisée pour activer/désactiver l'audit en temps réel
+        // selon les préférences utilisateur ou les performances
+        console.log(`🔄 Audit en temps réel ${enabled ? 'activé' : 'désactivé'}`);
     }
 }
