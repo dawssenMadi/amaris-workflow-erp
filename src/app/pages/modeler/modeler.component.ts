@@ -49,7 +49,6 @@ interface ElementRegistry {
     filter(fn: (element: any) => boolean): any[];
 }
 
-// Interfaces pour l'audit BPMN
 interface AuditResult {
     idActivite: string;
     resultatAudit: boolean;
@@ -232,7 +231,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
 
         const eventBus: any = this.bpmnJS.get('eventBus');
 
-        // Événements pour l'audit en temps réel
         eventBus.on('element.changed', (event: any) => {
             this.handleElementChanged(event.element);
         });
@@ -379,7 +377,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         };
 
         reader.onerror = () => {
-            alert('❌ Erreur lors de la lecture du fichier');
+            alert('Erreur lors de la lecture du fichier');
         };
 
         reader.readAsText(file);
@@ -394,7 +392,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             if (error.message) {
                 errorMessage += `\n\nDétails: ${error.message}`;
             }
-            alert(`❌ ${errorMessage}`);
+            alert(`${errorMessage}`);
         }
     }
 
@@ -420,7 +418,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
 
             window.URL.revokeObjectURL(url);
         } catch (error) {
-            alert('❌ Erreur lors du téléchargement du diagramme');
+            alert('Erreur lors du téléchargement du diagramme');
         }
     }
 
@@ -432,11 +430,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         this.isFullscreen = !this.isFullscreen;
     }
 
-    // ====== MÉTHODES D'AUDIT BPMN ======
-
-    /**
-     * Initialise les règles d'audit BPMN
-     */
     private initializeAuditRules(): void {
         this.auditRules = [
             {
@@ -515,7 +508,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
      * Vérifie si un élément est une activité/tâche
      */
     private isTaskElement(element: any): boolean {
-        // Vérification de sécurité pour éviter les erreurs
         if (!element || !element.type) {
             return false;
         }
@@ -530,45 +522,30 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
                element.type === 'bpmn:ReceiveTask';
     }
 
-    /**
-     * Lance l'audit BPMN du diagramme
-     */
     async auditBpmnDiagram(): Promise<void> {
         try {
-            // Nettoyer les résultats précédents
             this.clearAuditResults();
 
             const elementRegistry = this.bpmnJS.get('elementRegistry') as ElementRegistry;
             const allElements = elementRegistry.getAll();
 
-            // Filtrer les éléments à auditer (activités principalement)
             const elementsToAudit = allElements.filter(element =>
                 this.isTaskElement(element) || element.type === 'bpmn:Process'
             );
 
-            console.log(`🔍 Début de l'audit BPMN - ${elementsToAudit.length} éléments à analyser`);
 
-            // Simuler un appel API avec des données mockées
             const mockAuditResults = this.generateMockAuditResults(elementsToAudit);
 
-            // Traitement des résultats d'audit
             this.processAuditResults(mockAuditResults);
 
-            // Appliquer la mise en évidence visuelle
             this.applyAuditVisualization();
 
-            // Afficher le résumé
-            // this.showAuditSummary();
 
         } catch (error) {
-            console.error('Erreur lors de l\'audit BPMN:', error);
             alert('Erreur lors de l\'audit du diagramme BPMN');
         }
     }
 
-    /**
-     * Génère des résultats d'audit mockés (simulation API)
-     */
     private generateMockAuditResults(elements: any[]): AuditResult[] {
         const results: AuditResult[] = [];
 
@@ -576,7 +553,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             const errors: string[] = [];
             let passed = true;
 
-            // Appliquer toutes les règles d'audit
             this.auditRules.forEach(rule => {
                 const ruleResult = rule.check(element);
                 if (!ruleResult.passed) {
@@ -585,7 +561,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
                 }
             });
 
-            // Simulation de résultats variables pour démonstration
             const randomFactor = Math.random();
             if (this.isTaskElement(element) && randomFactor > 0.7) {
                 passed = false;
@@ -602,9 +577,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         return results;
     }
 
-    /**
-     * Traite les résultats d'audit et les stocke
-     */
     private processAuditResults(results: AuditResult[]): void {
         this.currentAuditResults.clear();
 
@@ -613,9 +585,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         });
     }
 
-    /**
-     * Applique la mise en évidence visuelle des résultats d'audit
-     */
+
     private applyAuditVisualization(): void {
         const elementRegistry = this.bpmnJS.get('elementRegistry') as ElementRegistry;
 
@@ -624,25 +594,18 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             if (element) {
                 const gfx = this.getElementGraphics(element);
                 if (gfx) {
-                    // Nettoyer les classes précédentes
                     gfx.classList.remove('audit-failed', 'audit-passed');
 
-                    // Appliquer seulement le style rouge aux éléments non conformes
                     if (!result.resultatAudit) {
                         gfx.classList.add('audit-failed');
 
-                        // Ajouter un gestionnaire de survol pour afficher les erreurs
                         this.addErrorTooltip(element, result.erreurs || []);
                     }
-                    // Les éléments conformes restent avec leur style par d��faut (pas de classe ajoutée)
                 }
             }
         });
     }
 
-    /**
-     * Récupère les graphiques d'un élément
-     */
     private getElementGraphics(element: any): HTMLElement | null {
         try {
             const canvas = this.bpmnJS.get('canvas') as any;
@@ -652,14 +615,10 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    /**
-     * Ajoute une info-bulle d'erreur à un élément
-     */
     private addErrorTooltip(element: any, errors: string[]): void {
         const gfx = this.getElementGraphics(element);
         if (!gfx || errors.length === 0) return;
 
-        // Supprimer les anciens event listeners pour éviter les doublons
         const existingHandlers = (gfx as any)._auditHandlers;
         if (existingHandlers) {
             gfx.removeEventListener('mouseenter', existingHandlers.showTooltip);
@@ -672,7 +631,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             const tooltip = document.createElement('div');
             tooltip.className = 'audit-tooltip';
 
-            // Styles de base pour l'infobulle
             tooltip.style.position = 'absolute';
             tooltip.style.zIndex = '10000';
             tooltip.style.backgroundColor = 'rgba(35, 35, 35, 0.95)';
@@ -684,7 +642,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             tooltip.style.fontSize = '14px';
             tooltip.style.border = '1px solid #ff3d3d';
 
-            // Contenu de l'infobulle
             tooltip.innerHTML = `
                 <div style="font-weight: bold; margin-bottom: 10px; color: #ff3d3d; border-bottom: 1px solid #555; padding-bottom: 5px;">
                     <span style="font-size: 16px;">🔴 Erreurs d'audit API</span>
@@ -702,11 +659,9 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
                 </div>
             `;
 
-            // Positionnement intelligent de l'infobulle
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
 
-            // Position initiale relative à la souris
             let left = event.pageX + 15;
             let top = event.pageY - 15;
 
@@ -715,17 +670,14 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             const tooltipWidth = tooltip.offsetWidth;
             const tooltipHeight = tooltip.offsetHeight;
 
-            // Ajustement si l'infobulle dépasse à droite
             if (left + tooltipWidth > viewportWidth - 20) {
                 left = event.pageX - tooltipWidth - 15;
             }
 
-            // Ajustement si l'infobulle dépasse en bas
             if (top + tooltipHeight > viewportHeight - 20) {
                 top = viewportHeight - tooltipHeight - 20;
             }
 
-            // Ajustement si l'infobulle dépasse en haut
             if (top < 20) {
                 top = 20;
             }
@@ -733,7 +685,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             tooltip.style.left = left + 'px';
             tooltip.style.top = top + 'px';
 
-            // Effet de transition
             tooltip.style.opacity = '0';
             tooltip.style.transition = 'opacity 0.2s ease-in-out';
             setTimeout(() => {
@@ -745,7 +696,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             this.hideErrorTooltip();
         };
 
-        // Stocker les références des handlers pour pouvoir les supprimer plus tard
         (gfx as any)._auditHandlers = {
             showTooltip,
             hideTooltip
@@ -755,9 +705,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         gfx.addEventListener('mouseleave', hideTooltip);
     }
 
-    /**
-     * Cache l'info-bulle d'erreur
-     */
+
     private hideErrorTooltip(): void {
         const existing = document.querySelector('.audit-tooltip');
         if (existing) {
@@ -765,11 +713,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    /**
-     * Nettoie les résultats d'audit précédents
-     */
     private clearAuditResults(): void {
-        // Nettoyer les classes CSS
         const elementRegistry = this.bpmnJS?.get('elementRegistry') as ElementRegistry;
         if (elementRegistry) {
             elementRegistry.getAll().forEach(element => {
@@ -780,50 +724,31 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             });
         }
 
-        // Nettoyer les données
         this.currentAuditResults.clear();
 
-        // Nettoyer les tooltips
         this.hideErrorTooltip();
     }
 
-    // ====== MÉTHODES D'AUDIT EN TEMPS RÉEL ======
-
-    /**
-     * Gère les changements d'un élément (modification de propriétés)
-     */
     private handleElementChanged(element: any): void {
         if (this.shouldAuditElement(element)) {
-            // Délai pour éviter les appels trop fréquents
             setTimeout(() => {
                 this.sendAuditRequest(element);
             }, 500);
         }
     }
 
-    /**
-     * Gère la fin de saisie du nom d'un élément
-     */
     private handleElementNameChanged(element: any): void {
-        // Vérification de sécurité complète
         if (!element || !element.id || !element.type) {
-            console.warn('⚠️ Élément invalide reçu dans handleElementNameChanged:', element);
             return;
         }
 
         if (this.shouldAuditElement(element)) {
-            console.log('🏷️ Nom de l\'élément modifié:', element.id, element.businessObject?.name);
             this.sendAuditRequest(element);
         }
     }
 
-    /**
-     * Gère l'ajout d'un nouvel élément
-     */
     private handleElementAdded(element: any): void {
         if (this.shouldAuditElement(element)) {
-            console.log('➕ Nouvel élément ajouté:', element.id, element.type);
-            // Petit délai pour s'assurer que l'élément est bien initialisé
             setTimeout(() => {
                 this.sendAuditRequest(element);
             }, 100);
@@ -842,9 +767,6 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             element.type === 'bpmn:InclusiveGateway';
     }
 
-    /**
-     * Envoie une requête d'audit pour un élément spécifique
-     */
     private sendAuditRequest(element: any): void {
         const auditRequest: AuditRequest = {
             nomSymbol: element.businessObject?.name || '',
@@ -852,60 +774,17 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
             idSymbol: element.id
         };
 
-        console.log('📤 Audit pour:', auditRequest);
 
-        // Temporairement, utiliser les règles locales au lieu de l'API
-        // Remplacez cette section par l'appel API quand le backend sera prêt
-        this.processLocalAudit(element);
-
-        // Code pour l'API (désactivé temporairement) :
-        // this.auditService.auditSymbol(auditRequest).subscribe({
-        //     next: (response: AuditResponse) => {
-        //         console.log('📥 Réponse audit reçue:', response);
-        //         this.processIndividualAuditResult(response);
-        //     },
-        //     error: (error) => {
-        //         console.error('❌ Erreur lors de l\'audit:', error);
-        //         this.handleAuditError(element);
-        //     }
-        // });
-    }
-
-    /**
-     * Traite l'audit localement sans appel à l'API
-     */
-    private processLocalAudit(element: any): void {
-        console.log('🔍 Audit local pour:', element.id);
-
-        const errors: string[] = [];
-        let passed = true;
-
-        // Appliquer toutes les règles d'audit locales
-        this.auditRules.forEach(rule => {
-            const ruleResult = rule.check(element);
-            if (!ruleResult.passed) {
-                passed = false;
-                errors.push(...ruleResult.errors);
+        this.auditService.auditSymbol(auditRequest).subscribe({
+            next: (response: AuditResponse) => {
+                this.processIndividualAuditResult(response);
+            },
+            error: (error) => {
+                this.handleAuditError(element);
             }
         });
-
-        // Créer un résultat d'audit conforme à l'interface AuditResponse
-        const localAuditResult: AuditResponse = {
-            idSymbol: element.id,
-            resultatAudit: passed,
-            erreurs: errors.length > 0 ? errors : undefined
-        };
-
-        // Pour le logging, on peut afficher plus d'informations
-        console.log(`Audit local pour élément: ${element.businessObject?.name || 'Sans nom'} (${element.type})`);
-
-        // Traiter le résultat comme s'il venait de l'API
-        this.processIndividualAuditResult(localAuditResult);
     }
 
-    /**
-     * Convertit le type BPMN en type pour l'audit
-     */
     private getElementTypeForAudit(bpmnType: string): string {
         const typeMapping: { [key: string]: string } = {
             'bpmn:Task': 'task',
@@ -929,24 +808,16 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         return typeMapping[bpmnType] || 'unknown';
     }
 
-    /**
-     * Traite le résultat d'audit d'un élément individuel
-     */
     private processIndividualAuditResult(response: AuditResponse): void {
-        // Mettre à jour le cache des résultats
         this.currentAuditResults.set(response.idSymbol, {
             idActivite: response.idSymbol,
             resultatAudit: response.resultatAudit,
             erreurs: response.erreurs
         });
 
-        // Appliquer la mise en évidence visuelle pour cet élément
         this.applyVisualFeedbackForElement(response.idSymbol);
     }
 
-    /**
-     * Applique la mise en évidence visuelle pour un élément spécifique
-     */
     private applyVisualFeedbackForElement(elementId: string): void {
         const elementRegistry = this.bpmnJS.get('elementRegistry') as ElementRegistry;
         const element = elementRegistry.get(elementId);
@@ -955,10 +826,8 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         if (element && result) {
             const gfx = this.getElementGraphics(element);
             if (gfx) {
-                // Nettoyer les classes précédentes
                 gfx.classList.remove('audit-failed', 'audit-passed');
 
-                // Supprimer les anciens gestionnaires d'événements de tooltip pour éviter qu'ils ne persistent
                 const existingHandlers = (gfx as any)._auditHandlers;
                 if (existingHandlers) {
                     gfx.removeEventListener('mouseenter', existingHandlers.showTooltip);
@@ -966,19 +835,13 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
                     delete (gfx as any)._auditHandlers;
                 }
 
-                // Appliquer le style approprié en fonction du résultat de l'audit
                 if (!result.resultatAudit) {
-                    // Élément non conforme: ajouter la classe et le tooltip d'erreur
                     gfx.classList.add('audit-failed');
 
-                    // N'ajouter le tooltip que si des erreurs sont présentes
                     if (result.erreurs && result.erreurs.length > 0) {
                         this.addErrorTooltip(element, result.erreurs);
-                        console.log(`🔴 Élément ${elementId} non conforme:`, result.erreurs);
                     }
                 } else {
-                    // Élément conforme: pas de tooltip nécessaire
-                    console.log(`🟢 Élément ${elementId} conforme`);
                 }
             }
         }
@@ -1011,12 +874,4 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         this.processIndividualAuditResult(fallbackResult);
     }
 
-    /**
-     * Active/désactive l'audit en temps réel
-     */
-    enableRealTimeAudit(enabled: boolean): void {
-        // Cette méthode peut être utilisée pour activer/désactiver l'audit en temps réel
-        // selon les préférences utilisateur ou les performances
-        console.log(`🔄 Audit en temps réel ${enabled ? 'activé' : 'désactivé'}`);
-    }
 }
