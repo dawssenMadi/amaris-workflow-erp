@@ -1,0 +1,380 @@
+<div class="clusters-container">
+  <div class="header-section">
+    <h1 class="page-title">
+      <i class="pi pi-server"></i>
+      Gestion des Clusters Camunda
+    </h1>
+    <p class="page-description">
+      Configurez vos environnements Camunda pour déployer vos processus BPMN
+    </p>
+  </div>
+
+  <div class="content-grid">
+    <!-- Formulaire d'ajout/modification -->
+    <div class="form-card">
+      <div class="card-header">
+        <h3 class="text-white">
+          <i class="pi pi-plus-circle"></i>
+          {{ editingCluster ? 'Modifier le cluster' : 'Ajouter un nouveau cluster' }}
+        </h3>
+      </div>
+
+      <form [formGroup]="clusterForm" (ngSubmit)="saveCluster()" class="cluster-form">
+        <!-- Informations générales -->
+        <div class="form-section">
+          <h4 class="section-title">Informations générales</h4>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nom du cluster *</label>
+              <input
+                type="text"
+                id="name"
+                formControlName="name"
+                placeholder="Ex: Production, Staging, Development"
+                class="form-input"
+                [class.error]="clusterForm.get('name')?.invalid && clusterForm.get('name')?.touched">
+              <div class="error-message" *ngIf="clusterForm.get('name')?.invalid && clusterForm.get('name')?.touched">
+                Le nom du cluster est requis (minimum 3 caractères)
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="environment">Environnement *</label>
+              <select id="environment" formControlName="environment" class="form-select">
+                <option value="">Sélectionner un environnement</option>
+                <option value="development">Development</option>
+                <option value="staging">Staging</option>
+                <option value="production">Production</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="type">Type de déploiement *</label>
+              <select id="type" formControlName="type" class="form-select" (change)="onTypeChange()">
+                <option value="">Sélectionner le type</option>
+                <option value="saas">Camunda SaaS (Cloud)</option>
+                <option value="self-managed">Self-Managed</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea
+                id="description"
+                formControlName="description"
+                placeholder="Description du cluster..."
+                class="form-textarea"
+                rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuration SaaS -->
+        <div class="form-section" *ngIf="clusterForm.get('type')?.value === 'saas'">
+          <h4 class="section-title">
+            <i class="pi pi-cloud"></i>
+            Configuration Camunda SaaS
+          </h4>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="regionId">Région *</label>
+              <select id="regionId" formControlName="regionId" class="form-select">
+                <option value="">Sélectionner une région</option>
+                <option *ngFor="let region of saasRegions" [value]="region.value">
+                  {{ region.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="clusterId">Cluster ID *</label>
+              <input
+                type="text"
+                id="clusterId"
+                formControlName="clusterId"
+                placeholder="Ex: 8891cb97-766d-4ed5-99f6-dcde2478929e"
+                class="form-input">
+              <small class="field-hint">UUID unique de votre cluster Camunda</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="clientId">Client ID *</label>
+              <input
+                type="text"
+                id="clientId"
+                formControlName="clientId"
+                placeholder="Ex: CqVfRs9Vmj_rdiFIhbyv52QKJoOEyGGj"
+                class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label for="clientSecret">Client Secret *</label>
+              <div class="password-input">
+                <input
+                  [type]="showClientSecret ? 'text' : 'password'"
+                  id="clientSecret"
+                  formControlName="clientSecret"
+                  placeholder="Votre Client Secret"
+                  class="form-input">
+                <button
+                  type="button"
+                  class="toggle-password"
+                  (click)="toggleClientSecret()">
+                  <i [class]="showClientSecret ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                </button>
+              </div>
+              <small class="field-hint">Visible uniquement lors de la création du client</small>
+            </div>
+          </div>
+
+          <!-- URLs générées automatiquement -->
+          <div class="generated-urls" *ngIf="clusterForm.get('clusterId')?.value && clusterForm.get('regionId')?.value">
+            <h5>URLs générées automatiquement</h5>
+            <div class="url-grid">
+              <div class="url-item">
+                <label>Cluster URL</label>
+                <code>{{ clusterForm.get('clusterUrl')?.value }}</code>
+              </div>
+              <div class="url-item">
+                <label>Tasklist URL</label>
+                <code>{{ clusterForm.get('tasklistUrl')?.value }}</code>
+              </div>
+              <div class="url-item">
+                <label>Operate URL</label>
+                <code>{{ clusterForm.get('operateUrl')?.value }}</code>
+              </div>
+              <div class="url-item">
+                <label>Optimize URL</label>
+                <code>{{ clusterForm.get('optimizeUrl')?.value }}</code>
+              </div>
+              <div class="url-item">
+                <label>OAuth URL</label>
+                <code>{{ clusterForm.get('oauthUrl')?.value }}</code>
+              </div>
+              <div class="url-item">
+                <label>REST API URL</label>
+                <code>{{ clusterForm.get('restApiUrl')?.value }}</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuration Self-Managed -->
+        <div class="form-section" *ngIf="clusterForm.get('type')?.value === 'self-managed'">
+          <h4 class="section-title">
+            <i class="pi pi-server"></i>
+            Configuration Self-Managed
+          </h4>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="zeebeGateway">Zeebe Gateway *</label>
+              <input
+                type="text"
+                id="zeebeGateway"
+                formControlName="zeebeGateway"
+                placeholder="Ex: localhost:26500"
+                class="form-input">
+              <small class="field-hint">Adresse et port du gateway Zeebe</small>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <input type="checkbox" formControlName="useTls" class="form-checkbox">
+                Utiliser TLS/SSL
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="selfManagedTasklistUrl">Tasklist URL</label>
+              <input
+                type="url"
+                id="selfManagedTasklistUrl"
+                formControlName="selfManagedTasklistUrl"
+                placeholder="Ex: http://localhost:8082"
+                class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label for="selfManagedOperateUrl">Operate URL</label>
+              <input
+                type="url"
+                id="selfManagedOperateUrl"
+                formControlName="selfManagedOperateUrl"
+                placeholder="Ex: http://localhost:8081"
+                class="form-input">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="selfManagedOptimizeUrl">Optimize URL</label>
+              <input
+                type="url"
+                id="selfManagedOptimizeUrl"
+                formControlName="selfManagedOptimizeUrl"
+                placeholder="Ex: http://localhost:8083"
+                class="form-input">
+            </div>
+          </div>
+
+          <!-- Authentification optionnelle -->
+          <div class="auth-section">
+            <h5>Authentification (optionnel)</h5>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input
+                  type="text"
+                  id="username"
+                  formControlName="username"
+                  placeholder="Nom d'utilisateur"
+                  class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <div class="password-input">
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    id="password"
+                    formControlName="password"
+                    placeholder="Mot de passe"
+                    class="form-input">
+                  <button
+                    type="button"
+                    class="toggle-password"
+                    (click)="togglePassword()">
+                    <i [class]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancelEdit()" *ngIf="editingCluster">
+            <i class="pi pi-times"></i>
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="clusterForm.invalid">
+            <i class="pi pi-check"></i>
+            {{ editingCluster ? 'Mettre à jour' : 'Ajouter le cluster' }}
+          </button>
+          <button type="button" class="btn btn-info" (click)="testConnection()" [disabled]="clusterForm.invalid">
+            <i class="pi pi-bolt"></i>
+            Tester la connexion
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Liste des clusters -->
+    <div class="clusters-list-card">
+      <div class="card-header">
+        <h3 class="text-white">
+          <i class="pi pi-list"></i>
+          Clusters configurés ({{ clusters.length }})
+        </h3>
+      </div>
+
+      <div class="clusters-list" *ngIf="clusters.length > 0; else noClusters">
+        <div
+          class="cluster-item"
+          *ngFor="let cluster of clusters"
+          [class.active]="cluster.id === selectedClusterId">
+
+          <div class="cluster-header">
+            <div class="cluster-info">
+              <h4 class="cluster-name">{{ cluster.name }}</h4>
+              <div class="cluster-meta">
+                <span class="cluster-type" [class]="'type-' + cluster.type">
+                  <i [class]="cluster.type === 'saas' ? 'pi pi-cloud' : 'pi pi-server'"></i>
+                  {{ cluster.type === 'saas' ? 'SaaS' : 'Self-Managed' }}
+                </span>
+                <span class="cluster-env" [class]="'env-' + cluster.environment">
+                  {{ cluster.environment | titlecase }}
+                </span>
+                <span class="cluster-status" [class]="'status-' + cluster.status">
+                  <i [class]="getStatusIcon(cluster.status)"></i>
+                  {{ getStatusLabel(cluster.status) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="cluster-actions">
+              <button
+                class="action-btn test"
+                (click)="testClusterConnection(cluster)"
+                [disabled]="cluster.testing"
+                title="Tester la connexion">
+                <i [class]="cluster.testing ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"></i>
+              </button>
+              <button
+                class="action-btn edit"
+                (click)="editCluster(cluster)"
+                title="Modifier">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                class="action-btn delete"
+                (click)="deleteCluster(cluster.id!)"
+                title="Supprimer">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="cluster-details" *ngIf="cluster.description">
+            <p>{{ cluster.description }}</p>
+          </div>
+
+          <div class="cluster-config">
+            <div class="config-item" *ngIf="cluster.type === 'saas'">
+              <strong>Région:</strong> {{ cluster.regionId }}
+            </div>
+            <div class="config-item" *ngIf="cluster.type === 'saas'">
+              <strong>Cluster ID:</strong>
+              <code>{{ cluster.clusterId | slice:0:8 }}...{{ cluster.clusterId | slice:-8 }}</code>
+            </div>
+            <div class="config-item" *ngIf="cluster.type === 'self-managed'">
+              <strong>Zeebe Gateway:</strong> <code>{{ cluster.zeebeGateway }}</code>
+            </div>
+            <div class="config-item" *ngIf="cluster.lastTested">
+              <strong>Dernière vérification:</strong> {{ cluster.lastTested | date:'short':'fr' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noClusters>
+        <div class="empty-state">
+          <i class="pi pi-server empty-icon"></i>
+          <h3>Aucun cluster configuré</h3>
+          <p>Ajoutez votre premier cluster Camunda pour commencer à déployer vos processus BPMN.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<!-- Toast pour les notifications -->
+<div class="toast-container" *ngIf="toastMessage">
+  <div class="toast" [class]="'toast-' + toastType">
+    <i [class]="getToastIcon()"></i>
+    <span>{{ toastMessage }}</span>
+    <button class="toast-close" (click)="hideToast()">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+</div>

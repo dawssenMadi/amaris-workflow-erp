@@ -17,6 +17,10 @@
                 <i class="pi pi-shield"></i>
                 <span>Audit BPMN</span>
             </button>
+            <button class="toolbar-button deploy-button" (click)="openDeploymentModal()" title="Déployer sur un cluster Camunda">
+                <i class="pi pi-send"></i>
+                <span>Déployer</span>
+            </button>
         </div>
         <div class="toolbar-right">
             <button class="toolbar-button fullscreen-button" (click)="toggleFullscreen()" [title]="isFullscreen ? 'Quitter le plein écran' : 'Mode plein écran'">
@@ -46,5 +50,96 @@
                 <i class="pi pi-sliders-h"></i>
             </button>
         }
+    </div>
+</div>
+
+<!-- Modal de déploiement -->
+<div class="deployment-modal-overlay" *ngIf="showDeploymentModal" (click)="closeDeploymentModal()">
+    <div class="deployment-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>
+                <i class="pi pi-send"></i>
+                Déployer le processus BPMN
+            </h3>
+            <button class="close-button" (click)="closeDeploymentModal()">
+                <i class="pi pi-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-content">
+            <div class="deployment-info">
+                <div class="info-item">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Ce processus sera déployé sur le cluster sélectionné et sera immédiatement disponible pour l'exécution.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="deploymentName">Nom du déploiement *</label>
+                <input
+                    type="text"
+                    id="deploymentName"
+                    [(ngModel)]="deploymentName"
+                    placeholder="Ex: MonProcessus-v1.0"
+                    class="form-input"
+                    [disabled]="isDeploying">
+            </div>
+
+            <div class="form-group">
+                <label for="targetCluster">Cluster de destination *</label>
+                <select
+                    id="targetCluster"
+                    (change)="onClusterChange($event)"
+                    class="form-select"
+                    [disabled]="isDeploying">
+                    <option value="">Sélectionner un cluster</option>
+                    <option
+                        *ngFor="let cluster of availableClusters"
+                        [value]="cluster.id"
+                        [selected]="cluster.id === selectedCluster?.id">
+                        {{ cluster.name }} ({{ cluster.environment }}) - {{ cluster.type === 'saas' ? 'SaaS' : 'Self-Managed' }}
+                    </option>
+                </select>
+
+                <div class="cluster-info" *ngIf="selectedCluster">
+                    <div class="cluster-details">
+                        <span class="cluster-status" [class]="'status-' + selectedCluster.status">
+                            <i [class]="selectedCluster.status === 'connected' ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'"></i>
+                            {{ selectedCluster.status === 'connected' ? 'Connecté' : 'Non connecté' }}
+                        </span>
+                        <span class="cluster-type">{{ selectedCluster.type === 'saas' ? 'Camunda SaaS' : 'Self-Managed' }}</span>
+                        <span class="cluster-region" *ngIf="selectedCluster.regionId">{{ selectedCluster.regionId }}</span>
+                    </div>
+                    <p class="cluster-description" *ngIf="selectedCluster.description">
+                        {{ selectedCluster.description }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="deployment-warning" *ngIf="!availableClusters.length">
+                <i class="pi pi-exclamation-triangle"></i>
+                <div>
+                    <strong>Aucun cluster disponible</strong>
+                    <p>Veuillez configurer et tester au moins un cluster dans la <a href="/clusters" target="_blank">page de gestion des clusters</a>.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button
+                class="btn btn-secondary"
+                (click)="closeDeploymentModal()"
+                [disabled]="isDeploying">
+                <i class="pi pi-times"></i>
+                Annuler
+            </button>
+            <button
+                class="btn btn-primary"
+                (click)="deployToCluster()"
+                [disabled]="isDeploying || !selectedCluster || !deploymentName.trim() || !availableClusters.length">
+                <i [class]="isDeploying ? 'pi pi-spin pi-spinner' : 'pi pi-send'"></i>
+                {{ isDeploying ? 'Déploiement en cours...' : 'Déployer' }}
+            </button>
+        </div>
     </div>
 </div>

@@ -62,6 +62,18 @@
         }
     }
 
+    &.deploy-button {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-color: #28a745;
+
+        &:hover {
+            background: linear-gradient(135deg, #218838, #1abc9c);
+            border-color: #1e7e34;
+            color: white;
+        }
+    }
+
     &:active {
         transform: translateY(1px);
     }
@@ -344,5 +356,306 @@
 
     .toolbar-button {
         padding: 8px;
+    }
+}
+
+// Modal de déploiement
+.deployment-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.deployment-modal {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    min-width: 500px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .close-button {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        i {
+            font-size: 1.2rem;
+        }
+    }
+}
+
+.modal-content {
+    padding: 2rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.deployment-info {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #e8f4fd;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        color: #2c3e50;
+
+        i {
+            color: #3498db;
+            margin-top: 0.2rem;
+        }
+
+        span {
+            line-height: 1.5;
+        }
+    }
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #34495e;
+        font-size: 0.9rem;
+    }
+}
+
+.form-input, .form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+
+    &:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    &:disabled {
+        background: #f8f9fa;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    &::placeholder {
+        color: #95a5a6;
+    }
+}
+
+.cluster-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.cluster-details {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.cluster-status, .cluster-type, .cluster-region {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    i {
+        font-size: 0.75rem;
+    }
+}
+
+.cluster-status {
+    &.status-connected {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    &.status-disconnected, &.status-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+}
+
+.cluster-type {
+    background: #e8f4fd;
+    color: #3498db;
+}
+
+.cluster-region {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.cluster-description {
+    margin: 0;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.deployment-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #fff3cd;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 1.5rem;
+
+    i {
+        color: #856404;
+        font-size: 1.5rem;
+        margin-top: 0.25rem;
+    }
+
+    div {
+        flex: 1;
+
+        strong {
+            display: block;
+            color: #856404;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        p {
+            margin: 0;
+            color: #6c757d;
+            line-height: 1.5;
+
+            a {
+                color: #007bff;
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 120px;
+        justify-content: center;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &.btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+
+            &:hover:not(:disabled) {
+                background: linear-gradient(135deg, #2980b9, #1f4e79);
+                transform: translateY(-1px);
+            }
+        }
+
+        &.btn-secondary {
+            background: #95a5a6;
+            color: white;
+
+            &:hover:not(:disabled) {
+                background: #7f8c8d;
+                transform: translateY(-1px);
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }

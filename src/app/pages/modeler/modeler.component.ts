@@ -7,6 +7,7 @@ import {
     ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 import zeebeModdleDescriptor from 'zeebe-bpmn-moddle/resources/zeebe.json';
@@ -37,6 +38,8 @@ import tokenSimulation from 'bpmn-js-token-simulation';
 import ElementTemplateChooserModule from '@bpmn-io/element-template-chooser';
 import { AutoCompleteService } from '../service/modeler/auto-complete.service';
 import { AuditService, AuditRequest, AuditResponse } from '../service/audit/audit.service';
+import { ClusterService, DeploymentRequest } from '../service/cluster/cluster.service';
+import { CamundaCluster } from '../clusters/clusters.component';
 
 
 interface ElementTemplatesLoader {
@@ -64,7 +67,7 @@ interface AuditRule {
 
 @Component({
     selector: 'app-modeler',
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './modeler.component.html',
     styleUrl: './modeler.component.scss'
 })
@@ -76,6 +79,13 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
     private currentAuditResults: Map<string, AuditResult> = new Map();
     private auditRules: AuditRule[] = [];
 
+    // Nouvelles propriétés pour le déploiement
+    availableClusters: CamundaCluster[] = [];
+    selectedCluster: CamundaCluster | null = null;
+    isDeploying = false;
+    showDeploymentModal = false;
+    deploymentName = '';
+
     @ViewChild('ref', { static: true }) private el: ElementRef;
     @ViewChild('propertiesPanel', { static: true }) private propertiesPanel: ElementRef;
     @ViewChild('fileInput', { static: true }) private fileInput: ElementRef;
@@ -84,7 +94,8 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
     constructor(
         private http: HttpClient,
         private autoCompleteService: AutoCompleteService,
-        private auditService: AuditService
+        private auditService: AuditService,
+        private clusterService: ClusterService
     ) {
         this.initializeAuditRules();
     }
@@ -93,6 +104,7 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         this.loadConnectorTemplates().then(() => {
             this.initializeBpmnJS();
         });
+        this.loadAvailableClusters();
     }
 
     ngOnDestroy(): void {
@@ -872,6 +884,98 @@ export class ModelerComponent implements AfterViewInit, OnDestroy {
         };
 
         this.processIndividualAuditResult(fallbackResult);
+    }
+
+    private loadAvailableClusters(): void {
+        this.availableClusters = this.clusterService.getConnectedClusters();
+        if (this.availableClusters.length > 0) {
+            this.selectedCluster = this.availableClusters[0];
+        }
+    }
+
+    // Nouvelles méthodes pour le déploiement
+    openDeploymentModal(): void {
+        this.loadAvailableClusters();
+        if (this.availableClusters.length === 0) {
+            alert('Aucun cluster connecté disponible. Veuillez configurer et tester la connexion à un cluster dans la page Clusters.');
+            return;
+        }
+
+        this.showDeploymentModal = true;
+        this.deploymentName = this.generateDeploymentName();
+    }
+
+    closeDeploymentModal(): void {
+        this.showDeploymentModal = false;
+        this.deploymentName = '';
+        this.isDeploying = false;
+    }
+
+    async deployToCluster(): Promise<void> {
+        if (!this.selectedCluster || !this.deploymentName.trim()) {
+            return;
+        }
+
+        this.isDeploying = true;
+
+        try {
+            const result = await this.bpmnJS.saveXML({ format: true });
+            const bpmnXml = result.xml;
+
+            const deploymentRequest: DeploymentRequest = {
+                name: this.deploymentName.trim(),
+                bpmnXml: bpmnXml,
+                clusterId: this.selectedCluster.id!
+            };
+
+            this.clusterService.deployProcess(deploymentRequest).subscribe({
+                next: (response) => {
+                    this.handleDeploymentSuccess(response);
+                },
+                error: (error) => {
+                    this.handleDeploymentError(error);
+                }
+            });
+
+        } catch (error) {
+            this.handleDeploymentError(error);
+        }
+    }
+
+    private handleDeploymentSuccess(response: any): void {
+        this.isDeploying = false;
+        this.closeDeploymentModal();
+
+        const message = `✅ Déploiement réussi sur "${this.selectedCluster?.name}"
+
+Détails:
+• Nom: ${this.deploymentName}
+• Cluster: ${this.selectedCluster?.name} (${this.selectedCluster?.environment})
+• Clé de déploiement: ${response.key || 'N/A'}`;
+
+        alert(message);
+    }
+
+    private handleDeploymentError(error: any): void {
+        this.isDeploying = false;
+
+        let errorMessage = 'Erreur lors du déploiement';
+        if (error?.message) {
+            errorMessage += `:\n${error.message}`;
+        }
+
+        alert(`❌ ${errorMessage}`);
+    }
+
+    private generateDeploymentName(): string {
+        const timestamp = new Date().toISOString().slice(0, 16).replace(/[:-]/g, '');
+        return `process-${timestamp}`;
+    }
+
+    onClusterChange(event: Event): void {
+        const target = event.target as HTMLSelectElement;
+        const clusterId = target.value;
+        this.selectedCluster = this.availableClusters.find(c => c.id === clusterId) || null;
     }
 
 }
