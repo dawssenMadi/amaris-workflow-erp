@@ -1,0 +1,13 @@
+/* Override BPMN font paths to work with Angular build */
+@font-face {
+  font-family: 'bpmn';
+  src: url('/assets/bpmn-font/font/bpmn.eot?16406289');
+  src: url('/assets/bpmn-font/font/bpmn.eot?16406289#iefix') format('embedded-opentype'),
+       url('/assets/bpmn-font/font/bpmn.woff2?16406289') format('woff2'),
+       url('/assets/bpmn-font/font/bpmn.woff?16406289') format('woff'),
+       url('/assets/bpmn-font/font/bpmn.ttf?16406289') format('truetype'),
+       url('/assets/bpmn-font/font/bpmn.svg?16406289#bpmn') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+

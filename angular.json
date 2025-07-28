@@ -31,11 +31,16 @@
                                 "input": "public"
                             },
                             "src/assets",
-                            "src/favicon.ico"
+                            "src/favicon.ico",
+                            {
+                                "glob": "**/*",
+                                "input": "node_modules/bpmn-js/dist/assets/bpmn-font/font",
+                                "output": "assets/bpmn-font/font"
+                            }
                         ],
                         "styles": [
                             "node_modules/bpmn-js/dist/assets/diagram-js.css",
-                            "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css",
+                            "src/assets/bpmn-font-override.css",
                             "@bpmn-io/properties-panel/dist/assets/properties-panel.css",
                             "src/styles.scss"
                         ],
