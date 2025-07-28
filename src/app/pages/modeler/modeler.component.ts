@@ -29,7 +29,7 @@ import {
 } from 'bpmn-js-create-append-anything';
 
 import 'bpmn-js/dist/assets/diagram-js.css';
-import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
+//import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
 import '@bpmn-io/properties-panel/dist/assets/properties-panel.css';
 import 'bpmn-js-token-simulation/assets/css/bpmn-js-token-simulation.css';
 import '@bpmn-io/element-template-chooser/dist/element-template-chooser.css';
