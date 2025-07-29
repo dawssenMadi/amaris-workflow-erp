@@ -1,0 +1,20 @@
+<div class="flex items-center justify-between mb-3">
+  <h2 class="font-semibold text-lg text-blue-900">Liste des processus</h2>
+</div>
+<div class="process-list">
+  <div
+    *ngFor="let process of filteredProcessGroups"
+    class="process-card"
+    (click)="selectProcess(process)"
+    tabindex="0"
+  >
+    <div class="process-info">
+      <span class="process-label">Nom :</span>
+      <span class="process-name">{{ process.processName }}</span>
+      <span class="process-label">ID :</span>
+      <span class="process-id">{{ process.processId }}</span>
+      <span class="process-label">Version :</span>
+      <span class="process-version">{{ process.processVersion }}</span>
+    </div>
+  </div>
+</div>

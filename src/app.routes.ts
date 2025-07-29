@@ -4,7 +4,7 @@ import { Dashboard } from './app/pages/dashboard/dashboard';
 import { Documentation } from './app/pages/documentation/documentation';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
-import { DictionaryTable } from './app/pages/uikit/dictionary/DictionaryTable';
+import { DictionaryTable } from './app/pages/uikit/dictionary/dictionnaryTable/DictionaryTable';
 
 export const appRoutes: Routes = [
     {

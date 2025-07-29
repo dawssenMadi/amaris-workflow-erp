@@ -156,3 +156,26 @@
     border: 1px solid var(--p-inputtext-border-color, #ced4da);
   }
   
+.type-tag-style {
+  font-weight: 600;
+  font-size: 0.97em;
+  border-radius: 999px;
+  padding: 0.22em 1.1em;
+  letter-spacing: 0.01em;
+  border-width: 1.5px;
+  border-style: solid;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+  display: inline-block;
+}
+
+.back-arrow {
+  font-size: 15px;
+  color: #007bff; 
+  cursor: pointer;
+  margin: 5px;
+  transition: color 0.2s;
+}
+
+.back-arrow:hover {
+  color: #0056b3; 
+}

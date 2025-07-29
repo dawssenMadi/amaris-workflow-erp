@@ -1,0 +1,276 @@
+<div class="card">
+    <div class="font-semibold text-xl mb-4"></div>
+  
+    <!-- Use the new process list component -->
+    <app-processus-list
+      *ngIf="!selectedProcess"
+      [processGroups]="processGroups"
+      (processSelected)="onSelectProcess($event)">
+    </app-processus-list>
+  
+    <!-- Show table for selected process -->
+    <div *ngIf="selectedProcess">
+    <i class="pi pi-arrow-left back-arrow" (click)="selectedProcess = null" title="Retour"></i>
+    <h2 class="font-semibold text-lg text-blue-900 mb-3">
+    {{ selectedProcess.processName }}
+    </h2>
+      <p-table
+        #dt1
+        [value]="entries"
+        [loading]="loading"
+        [paginator]="true"
+        [rows]="10"
+        [showGridlines]="true"
+        [rowHover]="true"
+        responsiveLayout="scroll"
+        scrollable="true"
+        scrollHeight="400px"
+        [globalFilterFields]="[
+          'elementType',
+          'elementName',
+          'elementId',
+          'processName',
+          'processId',
+          'processVersion',
+          'description',
+          'createdAt',
+          'updatedAt'
+        ]"
+      >
+        <ng-template #caption>
+          <div class="flex justify-between items-center flex-column sm:flex-row gap-2">
+            <div>
+              <button
+                pButton
+                label="Effacer"
+                class="p-button-outlined mb-2"
+                icon="pi pi-filter-slash"
+                (click)="clear(dt1)"
+              ></button>
+              <button
+                pButton
+                label="Ajouter un élément"
+                class="p-button-outlined mb-2 ml-2"
+                icon="pi pi-plus"
+                (click)="openNew()"
+              ></button>
+              <p-multiSelect
+                [options]="elementTypeOptions"
+                [(ngModel)]="selectedType"
+                (onChange)="onTypeChange()"
+                (onClear)="onTypeChange()"
+                (onFilter)="onTypeInputFilter($event)"
+                placeholder="Filtrer par type"
+                [showClear]="true"
+                class="ml-2"
+                display="chip"
+                [filter]="true"
+                [showToggleAll]="false"
+                filterPlaceHolder="Rechercher un type..."
+              >
+                <ng-template let-option pTemplate="item">
+                  <span
+                    class="type-tag-style"
+                    [style.background-color]="getTypeColor(option.value, 0.10)"
+                    [style.color]="getTypeColor(option.value, 1)"
+                    [style.border-color]="getTypeColor(option.value, 0.35)"
+                  >
+                    {{ option.label }}
+                  </span>
+                </ng-template>
+              </p-multiSelect>
+            </div>
+            <div class="flex items-center gap-2 ml-auto">
+              <p-iconfield iconPosition="left">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                  pInputText
+                  type="text"
+                  #searchInput
+                  (input)="onGlobalFilter(dt1, $event)"
+                  placeholder="Recherche..."
+                />
+              </p-iconfield>
+            </div>
+          </div>
+        </ng-template>
+  
+        <ng-template #header>
+          <tr>
+            <th *ngIf="selectedRow" style="min-width: 130px; text-align: left;">Actions</th>
+            <th style="min-width: 180px">Nom de l'élément</th>
+            <th style="min-width: 180px">Type d'élément</th>
+            <th style="min-width: 220px">Description</th>
+            <th style="min-width: 160px">Créé le</th>
+            <th style="min-width: 160px">Mis à jour le</th>
+          </tr>
+        </ng-template>
+  
+        <ng-template #body let-entry>
+          <tr
+            (click)="onRowSelect(entry)"
+            [class.selected-row-light]="selectedRow === entry"
+            [class.row-hover]="selectedRow !== entry"
+          >
+            <td *ngIf="selectedRow" class="action-cell">
+              <ng-container *ngIf="selectedRow === entry; else emptyCell">
+                <button
+                  pButton
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-sm"
+                  pTooltip="Modifier"
+                  tooltipPosition="top"
+                  (click)="onUpdateSelected($event)"
+                ></button>
+                <button
+                  pButton
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-text p-button-sm"
+                  pTooltip="Supprimer"
+                  tooltipPosition="top"
+                  (click)="onDeleteSelected($event)"
+                ></button>
+                <button
+                  pButton
+                  icon="pi pi-search"
+                  class="p-button-rounded p-button-text p-button-sm"
+                  pTooltip="Trouver similaire"
+                  tooltipPosition="top"
+                  (click)="onFindSimilarSelected($event)"
+                ></button>
+              </ng-container>
+              <ng-template #emptyCell></ng-template>
+            </td>
+            <td>{{ entry.elementName }}</td>
+            <td>
+              <p-tag
+                [value]="entry.elementType"
+                class="type-tag-style"
+                [style.background-color]="getTypeColor(entry.elementType, 0.10)"
+                [style.color]="getTypeColor(entry.elementType, 1)"
+                [style.border-color]="getTypeColor(entry.elementType, 0.35)"
+              ></p-tag>
+            </td>
+            <td>{{ entry.description }}</td>
+            <td>{{ entry.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ entry.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        </ng-template>
+  
+        <ng-template #emptymessage>
+          <tr>
+            <td [attr.colspan]="selectedRow ? 10 : 9">Aucun élément trouvé.</td>
+          </tr>
+        </ng-template>
+  
+        <ng-template #loadingbody>
+          <tr>
+            <td [attr.colspan]="selectedRow ? 10 : 9">Chargement des données. Veuillez patienter.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+  
+      <p-confirmDialog></p-confirmDialog>
+  
+      <!-- Dialog: Create or Edit -->
+      <p-dialog
+        [(visible)]="entryDialog"
+        [style]="{ width: '70vw', 'max-width': '600px' }"
+        [header]="dialogTitle"
+        [modal]="true"
+        class="p-fluid"
+      >
+        <ng-template pTemplate="content">
+          <div class="p-formgrid grid">
+            <div class="field col-12 md:col-6">
+              <label for="elementType">Type d'élément</label>
+              <p-dropdown
+                id="elementType"
+                [options]="elementTypeOptions"
+                [(ngModel)]="entry.elementType"
+                placeholder="Sélectionnez un type"
+                [required]="true"
+              ></p-dropdown>
+              <small class="p-error" *ngIf="submitted && !entry.elementType">Le type d'élément est requis.</small>
+            </div>
+            <div class="field col-12 md:col-6">
+              <label for="elementName">Nom de l'élément</label>
+              <input type="text" pInputText id="elementName" [(ngModel)]="entry.elementName" required />
+              <small class="p-error" *ngIf="submitted && !entry.elementName">Le nom de l'élément est requis.</small>
+            </div>
+            <div class="field col-12 md:col-6">
+              <label for="elementId">ID de l'élément</label>
+              <input type="text" pInputText id="elementId" [(ngModel)]="entry.elementId" />
+            </div>
+            <div class="field col-12 md:col-6">
+              <label for="processName">Nom du processus</label>
+              <input type="text" pInputText id="processName" [(ngModel)]="entry.processName" />
+            </div>
+            <div class="field col-12 md:col-6">
+              <label for="processId">ID du processus</label>
+              <input type="text" pInputText id="processId" [(ngModel)]="entry.processId" />
+            </div>
+            <div class="field col-12 md:col-6">
+              <label for="processVersion">Version du processus</label>
+              <input type="text" pInputText id="processVersion" [(ngModel)]="entry.processVersion" />
+            </div>
+            <div class="field col-12">
+              <label for="description">Description</label>
+              <textarea id="description" pInputTextarea [(ngModel)]="entry.description" rows="3" cols="20"></textarea>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-outlined" (click)="hideDialog()"></button>
+          <button pButton pRipple label="Enregistrer" icon="pi pi-check" (click)="saveEntry()"></button>
+        </ng-template>
+      </p-dialog>
+  
+      <!-- Dialog: Similarity Search -->
+      <p-dialog [(visible)]="similarDialog" [style]="{ width: '800px' }" header="Trouver similaire" [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="similarElementName">Nom de l'élément</label>
+            <input type="text" pInputText id="similarElementName" [(ngModel)]="similarElementName" />
+          </div>
+          <div class="field">
+            <label for="similarThreshold">Seuil de similarité</label>
+            <input type="number" pInputText id="similarThreshold" [(ngModel)]="similarThreshold" min="0" max="1" step="0.01" />
+          </div>
+          <div *ngIf="similarError" class="p-error mb-2">{{ similarError }}</div>
+          <div *ngIf="similarLoading" class="mb-2">Recherche en cours...</div>
+          <div *ngIf="similarResults.length > 0" style="display: block; width: 100%;">
+            <div
+              *ngFor="let res of similarResults"
+              style="display: block; width: 100%; margin-bottom: 1rem; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(59,130,246,0.08); border: 1px solid #bfdbfe; background: #eff6ff; font-size: 0.92rem;"
+            >
+              <div style="color: #1e3a8a; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.98rem;">
+                {{ res.elementName }}
+              </div>
+              <div style="margin-bottom: 0.5rem;">
+                <p-tag [value]="res.elementType" severity="info" [ngStyle]="{ 'font-size': '0.85em' }"></p-tag>
+              </div>
+              <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;">
+                <ng-container *ngFor="let dot of [].constructor(10); let i = index">
+                  <span
+                    [ngClass]="{
+                      'bg-blue-500': i < Math.round(res.similarityScorePercentage / 10),
+                      'bg-blue-100': i >= Math.round(res.similarityScorePercentage / 10)
+                    }"
+                    style="display: inline-block; width: 10px; height: 10px; border-radius: 50%;"
+                  ></span>
+                </ng-container>
+              </div>
+              <div style="color: #2563eb; font-weight: 500; font-size: 0.85em;">{{ res.similarityScorePercentage }}%</div>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-outlined" (click)="hideSimilarDialog()"></button>
+          <button pButton pRipple label="Confirmer" icon="pi pi-search" (click)="searchSimilar()"></button>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>

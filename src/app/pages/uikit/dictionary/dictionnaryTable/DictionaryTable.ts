@@ -15,11 +15,13 @@ import { RippleModule } from 'primeng/ripple';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { TagModule } from 'primeng/tag';
-import { DictionaryService, DictionaryEntry } from '../../../layout/service/dictionary.service';
+import { DictionaryService, DictionaryEntry, ProcessDictionaryDto } from '../../../../layout/service/dictionary.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { ProcessusList } from '../ProcessusList/ProcessusList';
+
 
 @Component({
     selector: 'app-table-demo',
@@ -43,7 +45,9 @@ import { DropdownModule } from 'primeng/dropdown';
         TooltipModule,
         ConfirmDialogModule,
         DialogModule,
-        DropdownModule
+        DropdownModule,
+        ProcessusList,
+        
     ],
     templateUrl: './DictionaryTable.html',
     styleUrls: ['./DictionaryTable.css'],
@@ -80,9 +84,8 @@ export class DictionaryTable implements OnInit {
     dialogTitle: string = '';
 
     elementTypeOptions: any[] = [];
-    selectedType: string | null = null;
+    selectedType: string[] = [];
 
-    // Pour le modal de similarité
     similarDialog: boolean = false;
     similarElementName: string = '';
     similarThreshold: number = 0.7;
@@ -90,8 +93,12 @@ export class DictionaryTable implements OnInit {
     similarLoading: boolean = false;
     similarError: string = '';
 
+    processGroups: ProcessDictionaryDto[] = [];
+    selectedProcess: ProcessDictionaryDto | null = null;
+
     @ViewChild('filter') filter!: ElementRef;
     @ViewChild('searchInput') searchInput!: ElementRef;
+    @ViewChild('dt1') dt1!: Table;
 
     constructor(private dictionaryService: DictionaryService, private confirmationService: ConfirmationService, private messageService: MessageService) {}
 
@@ -117,13 +124,13 @@ export class DictionaryTable implements OnInit {
         ];
 
         this.loading = true;
-        this.dictionaryService.getEntries().subscribe({
-            next: (data) => {
-                this.entries = data;
+        this.dictionaryService.getEntriesGroupedByProcess().subscribe({
+            next: (groups) => {
+                this.processGroups = groups;
                 this.loading = false;
             },
-            error: (err) => {
-                this.entries = [];
+            error: () => {
+                this.processGroups = [];
                 this.loading = false;
             }
         });
@@ -151,7 +158,7 @@ export class DictionaryTable implements OnInit {
     clear(table: Table) {
         table.clear();
         this.selectedDate = null;
-        this.selectedType = null;
+        this.selectedType = [];
         this.loadAllEntries();
         if (this.selectedFilterField === 'createdAt' || this.selectedFilterField === 'updatedAt') {
             // Date picker is used, clear selectedDate
@@ -191,10 +198,10 @@ export class DictionaryTable implements OnInit {
 
     onTypeChange() {
         this.loading = true;
-        if (this.selectedType) {
-            this.dictionaryService.getEntriesByType(this.selectedType).subscribe({
+        if (this.selectedType && this.selectedType.length > 0) {
+            this.dictionaryService.getEntries().subscribe({
                 next: (data) => {
-                    this.entries = data;
+                    this.entries = data.filter(e => this.selectedType.includes(e.elementType));
                     this.loading = false;
                 },
                 error: (err) => {
@@ -254,7 +261,7 @@ export class DictionaryTable implements OnInit {
                         this.entries = [...this.entries];
                         this.entryDialog = false;
                         this.entry = {} as DictionaryEntry;
-                        this.selectedRow = null; // Hide the actions column
+                        this.selectedRow = null;
                     },
                     error: (err) => {
                         this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la mise à jour', life: 3000 });
@@ -393,4 +400,46 @@ export class DictionaryTable implements OnInit {
                 return 'info';
         }
     }
+
+    getTypeColor(type: string, alpha: number = 1): string {
+        const colorMap: { [key: string]: string } = {
+            'PROCESS': '#2563eb',
+            'USER_TASK': '#0d9488',
+            'SERVICE_TASK': '#6366f1',
+            'BUSINESS_RULE_TASK': '#f59e42',
+            'SCRIPT_TASK': '#64748b',
+            'MANUAL_TASK': '#6b7280',
+            'SEND_TASK': '#14b8a6',
+            'RECEIVE_TASK': '#818cf8',
+            'CALL_ACTIVITY': '#fbbf24',
+            'SUB_PROCESS': '#10b981',
+            'GATEWAY': '#f87171',
+            'EVENT': '#3b82f6',
+            'SEQUENCE_FLOW': '#a3a3a3',
+            'VARIABLE': '#22d3ee',
+            'FORM_FIELD': '#facc15',
+            'CONNECTOR': '#6366f1',
+            'LISTENER': '#64748b',
+        };
+        const hex = colorMap[type] || '#334155';
+        const rgb = hex.replace('#', '').match(/.{1,2}/g)?.map(x => parseInt(x, 16)) || [51, 65, 85];
+        return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+    }
+
+    onTypeInputFilter(event: any) {
+        const filterValue = event.filter || '';
+        if (this.dt1) {
+            const fakeEvent = { target: { value: filterValue } } as any;
+            this.onGlobalFilter(this.dt1, fakeEvent);
+        }
+    }
+
+    // onSelectProcess(process: ProcessDictionaryDto) {
+    //     this.selectedProcess = this.selectedProcess === process ? null : process;
+    //     this.entries = process.elements;
+    // }
+  onSelectProcess(process: ProcessDictionaryDto) {
+  this.selectedProcess = process;
+  this.entries = process.elements;
+}
 }

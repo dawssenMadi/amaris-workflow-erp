@@ -1,0 +1,62 @@
+.process-list {
+  display: flex;
+  flex-direction: column; 
+  gap: 1rem;
+}
+
+.process-card {
+  background: #f3f6fa;
+  border: 1px solid #2563eb22;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px 0 #2563eb11;
+  padding: 1rem 1.5rem;
+  min-width: 260px;
+  max-width: 100%;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.process-card:hover, .process-card:focus {
+  border-color: #2563eb;
+  box-shadow: 0 4px 16px 0 #2563eb22;
+}
+
+.process-info {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.process-label {
+  flex: 0 0 auto;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 1em;
+  margin-right: 0.25em;
+}
+
+.process-name,
+.process-id,
+.process-version {
+  flex: 1; 
+  min-width: 0;
+  font-size: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.process-name {
+  font-weight: 600;
+  color: #1a1a1a; 
+  font-size: 1.1em;
+}
+
+.process-id, .process-version {
+  color: #334155;
+  font-weight: 500;
+}

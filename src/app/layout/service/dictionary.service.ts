@@ -14,7 +14,12 @@ export interface DictionaryEntry {
   createdAt: string;
   updatedAt: string;
 }
-
+export interface ProcessDictionaryDto {
+  processName: string;
+  processId: string;
+  processVersion: string;
+  elements: DictionaryEntry[];
+}
 @Injectable({ providedIn: 'root' })
 export class DictionaryService {
   private apiUrl = 'http://localhost:8099/api/dictionary/entries';
@@ -24,7 +29,9 @@ export class DictionaryService {
   getEntries(): Observable<DictionaryEntry[]> {
     return this.http.get<DictionaryEntry[]>(this.apiUrl);
   }
-
+  getEntriesGroupedByProcess(): Observable<ProcessDictionaryDto[]> {
+  return this.http.get<ProcessDictionaryDto[]>(`${this.apiUrl.replace('/entries', '')}/grouped`);
+  }
   deleteEntry(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
