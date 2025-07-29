@@ -1,0 +1,102 @@
+<div class="audit-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1 class="page-title">
+      <i class="pi pi-cog"></i>
+      Audit des Processus RPA
+    </h1>
+    <p class="page-description">
+      Gestion et validation des processus déployés dans Camunda Operate
+    </p>
+  </div>
+
+  <!-- Processes List -->
+  <div class="processes-list">
+    <div class="list-header">
+      <h2>Processus Déployés</h2>
+      <p-button
+        label="Actualiser"
+        icon="pi pi-refresh"
+        severity="secondary"
+        (onClick)="loadDeployedProcesses()">
+      </p-button>
+    </div>
+
+    <div class="process-list-container">
+      <div
+        *ngFor="let process of deployedProcesses"
+        class="process-list-item"
+        [ngClass]="'audit-status-' + process.auditStatus"
+        (click)="openProcessDetails(process)">
+
+        <div class="process-main-info">
+          <div class="process-header">
+            <div class="process-title-section">
+              <h3 class="process-name">{{ process.name }}</h3>
+              <span class="process-version">v{{ process.version }}</span>
+            </div>
+            <div class="status-badges">
+              <p-tag
+                [value]="process.status === 'active' ? 'Actif' : 'Inactif'"
+                [severity]="getProcessStatusSeverity(process.status)">
+              </p-tag>
+              <p-tag
+                [value]="getAuditStatusLabel(process.auditStatus)"
+                [severity]="getAuditStatusSeverity(process.auditStatus)">
+              </p-tag>
+            </div>
+          </div>
+
+          <p class="process-description">{{ process.description }}</p>
+
+          <div class="process-meta">
+            <div class="meta-item">
+              <i class="pi pi-calendar"></i>
+              <span>Déployé le {{ process.deployedAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="meta-item" *ngIf="process.lastAuditDate">
+              <i class="pi pi-clock"></i>
+              <span>Dernier audit: {{ process.lastAuditDate | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="process-audit-info">
+          <div class="audit-progress">
+            <div class="progress-info">
+              <span class="progress-label">Progression de l'audit</span>
+              <span class="progress-count">{{ process.completedRules }}/{{ process.totalRules }}</span>
+            </div>
+            <p-progressBar
+              [value]="(process.completedRules / process.totalRules) * 100"
+              [showValue]="false">
+            </p-progressBar>
+          </div>
+        </div>
+
+        <div class="process-actions" (click)="$event.stopPropagation()">
+          <p-button
+            icon="pi pi-eye"
+            severity="secondary"
+            size="small"
+            pTooltip="Voir les détails"
+            (onClick)="openProcessDetails(process)">
+          </p-button>
+          <p-button
+            icon="pi pi-play"
+            size="small"
+            pTooltip="Lancer l'audit"
+            [disabled]="process.auditStatus === 'in-progress'"
+            (onClick)="runAudit(process)">
+          </p-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Messages -->
+<p-toast position="top-right"></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>

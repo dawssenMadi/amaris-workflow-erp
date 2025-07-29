@@ -61,7 +61,9 @@ export class AppMenu {
                         icon: 'pi pi-fw pi-search',
                         items: [{ label: 'Modeler', icon: 'pi pi-fw pi-book', routerLink: ['/modeler']},
                                 { label: 'Clusters', icon: 'pi pi-fw pi-book', routerLink: ['/clusters']}
-                        ]}
+                        ]},
+                    { label: 'Audit RPA', icon: 'pi pi-fw pi-cog', routerLink: ['/rpa-audit'] },
+
 
                 ]
             },

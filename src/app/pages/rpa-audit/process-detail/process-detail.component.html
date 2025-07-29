@@ -1,0 +1,209 @@
+<div class="process-detail-page">
+  <!-- Header with Navigation -->
+  <div class="page-header">
+    <div class="header-navigation">
+      <p-button
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        size="small"
+        pTooltip="Retour à la liste"
+        (onClick)="goBack()">
+      </p-button>
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">Audit RPA</span>
+        <i class="pi pi-chevron-right"></i>
+        <span class="breadcrumb-current" *ngIf="process">{{ process.name }}</span>
+      </div>
+    </div>
+
+    <div class="header-actions" *ngIf="process">
+      <p-button
+        label="Lancer Audit Complet"
+        icon="pi pi-play"
+        [disabled]="process.auditStatus === 'in-progress'"
+        (onClick)="runAudit()">
+      </p-button>
+      <p-button
+        label="Exporter Rapport"
+        icon="pi pi-download"
+        severity="info"
+        (onClick)="exportReport()">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Process Overview -->
+  <div class="process-overview" *ngIf="process">
+    <div class="overview-card">
+      <div class="overview-header">
+        <div class="process-title">
+          <h1>{{ process.name }}</h1>
+          <p-tag [value]="'v' + process.version" severity="info"></p-tag>
+        </div>
+
+        <div class="status-section">
+          <div class="status-badges">
+            <p-tag
+              [value]="process.status === 'active' ? 'Actif' : 'Inactif'"
+              [severity]="getProcessStatusSeverity(process.status)">
+            </p-tag>
+            <p-tag
+              [value]="getAuditStatusLabel(process.auditStatus)"
+              [severity]="getAuditStatusSeverity(process.auditStatus)">
+            </p-tag>
+          </div>
+
+          <div class="progress-summary">
+            <p-badge
+              [value]="process.completedRules + '/' + process.totalRules"
+              severity="success">
+            </p-badge>
+            <span class="progress-label">règles validées</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="process-description">{{ process.description }}</p>
+
+      <div class="process-metadata">
+        <div class="metadata-grid">
+          <div class="metadata-item">
+            <label><i class="pi pi-calendar"></i> Date de déploiement</label>
+            <span>{{ process.deployedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="metadata-item" *ngIf="process.lastAuditDate">
+            <label><i class="pi pi-clock"></i> Dernier audit</label>
+            <span>{{ process.lastAuditDate | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="metadata-item">
+            <label><i class="pi pi-cog"></i> Statut du processus</label>
+            <span>{{ process.status === 'active' ? 'Actif' : 'Inactif' }}</span>
+          </div>
+          <div class="metadata-item">
+            <label><i class="pi pi-chart-bar"></i> Progression globale</label>
+            <div class="global-progress">
+              <p-progressBar
+                [value]="(process.completedRules / process.totalRules) * 100"
+                [showValue]="true">
+              </p-progressBar>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Rules Section -->
+  <div class="audit-rules-section" *ngIf="process">
+    <h2 class="section-title">Règles d'Audit</h2>
+
+    <!-- Rules Overview Grid -->
+    <div class="rules-grid">
+      <div
+        *ngFor="let rule of process.auditRules"
+        class="rule-card"
+        [ngClass]="'rule-status-' + rule.status">
+
+        <div class="rule-header">
+          <div class="rule-title">
+            <i [class]="getRuleIcon(rule.status)" [ngClass]="getRuleStyleClass(rule.status)"></i>
+            <h3>{{ rule.name }}</h3>
+          </div>
+        </div>
+
+        <p class="rule-description">{{ rule.description }}</p>
+
+        <div class="rule-metadata">
+          <p-tag [value]="rule.category" severity="info"></p-tag>
+          <span class="activities-count">
+            {{ getValidatedActivitiesCount(rule) }}/{{ rule.activities.length }} activités validées
+          </span>
+        </div>
+
+        <div class="rule-progress">
+          <p-progressBar
+            [value]="(getValidatedActivitiesCount(rule) / rule.activities.length) * 100"
+            [showValue]="false">
+          </p-progressBar>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Activities Panel -->
+    <div class="activities-section">
+      <h3 class="subsection-title">Détails des Activités par Règle</h3>
+      <div class="rules-activities-container">
+        <div
+          *ngFor="let rule of process.auditRules"
+          class="rule-activities-panel"
+          [ngClass]="{'rule-completed': isRuleCompleted(rule), 'rule-validated': rule.isValidated}">
+
+          <div class="rule-panel-header" (click)="toggleRuleExpansion(rule.id)">
+            <div class="rule-title-section">
+              <i [class]="getRuleIcon(rule.status)" [ngClass]="getRuleStyleClass(rule.status)"></i>
+              <h4 [ngClass]="{'completed-rule-title': isRuleCompleted(rule)}">{{ rule.name }}</h4>
+              <p-tag [value]="rule.category" severity="info" class="rule-category-tag"></p-tag>
+            </div>
+
+            <div class="rule-status-section">
+              <span class="activities-count">
+                {{ getValidatedActivitiesCount(rule) }}/{{ rule.activities.length }}
+              </span>
+              <i class="pi pi-chevron-down expand-icon"
+                 [ngClass]="{'expanded': isRuleExpanded(rule.id)}"></i>
+            </div>
+          </div>
+
+          <div class="rule-activities-content"
+               [ngClass]="{'expanded': isRuleExpanded(rule.id)}">
+
+            <div
+              *ngFor="let activity of rule.activities; let i = index"
+              class="activity-item"
+              [ngClass]="{'activity-validated': activity.decision}">
+
+              <div class="activity-content">
+                <span class="activity-number">{{ i + 1 }}.</span>
+                <span class="activity-text" [ngClass]="{'completed-activity': activity.decision}">
+                  {{ activity.rule }}
+                </span>
+              </div>
+
+              <div class="activity-actions">
+                <p-button
+                  label="OK"
+                  size="small"
+                  [severity]="activity.decision ? 'success' : 'secondary'"
+                  [outlined]="!activity.decision"
+                  (onClick)="setActivityDecision(rule.id, activity, true)"
+                  class="ok-button">
+                </p-button>
+
+                <p-button
+                  label="NOK"
+                  size="small"
+                  [severity]="!activity.decision ? 'danger' : 'secondary'"
+                  [outlined]="activity.decision"
+                  (onClick)="setActivityDecision(rule.id, activity, false)"
+                  class="nok-button">
+                </p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="!process">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <p>Chargement des détails du processus...</p>
+  </div>
+</div>
+
+<!-- Toast Messages -->
+<p-toast position="top-right"></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>
