@@ -13,6 +13,9 @@ import { TimelineDemo } from './timelinedemo';
 import { OverlayDemo } from './overlaydemo';
 import { TreeDemo } from './treedemo';
 import { MenuDemo } from './menudemo';
+import { StartAuditComponent } from './start-audit.component';
+import { AuditsComponent } from './audits.component';
+import { Actions } from './Actions';
 
 
 export default [
@@ -30,5 +33,9 @@ export default [
     { path: 'overlay', data: { breadcrumb: 'Overlay' }, component: OverlayDemo },
     { path: 'tree', data: { breadcrumb: 'Tree' }, component: TreeDemo },
     { path: 'menu', data: { breadcrumb: 'Menu' }, component: MenuDemo },
+    { path: 'start-audit',  data: { breadcrumb: 'Start' },component: StartAuditComponent },
+    { path: 'audit',  data: { breadcrumb: 'Audit' },component: AuditsComponent },
+    { path: 'actions',  data: { breadcrumb: 'Actions' },component: Actions },
+
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;

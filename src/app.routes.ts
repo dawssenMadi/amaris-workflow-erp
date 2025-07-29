@@ -5,6 +5,8 @@ import { Documentation } from './app/pages/documentation/documentation';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { DictionaryTable } from './app/pages/uikit/dictionary/dictionnaryTable/DictionaryTable';
+import { ModelerComponent } from './app/pages/modeler/modeler.component';
+import { ClustersComponent } from './app/pages/clusters/clusters.component';
 
 export const appRoutes: Routes = [
     {
@@ -16,6 +18,8 @@ export const appRoutes: Routes = [
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
             { path: 'dictionnaire', component: DictionaryTable },
+            { path: 'modeler', component: ModelerComponent },
+            { path: 'clusters', component: ClustersComponent },
         ]
     },
     { path: 'landing', component: Landing },

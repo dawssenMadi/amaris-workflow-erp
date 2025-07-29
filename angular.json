@@ -34,6 +34,8 @@
                             "src/favicon.ico"
                         ],
                         "styles": [
+                            "node_modules/bpmn-js/dist/assets/diagram-js.css",
+                            "@bpmn-io/properties-panel/dist/assets/properties-panel.css",
                             "src/styles.scss"
                         ],
                         "scripts": []
@@ -43,16 +45,20 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "1mb",
+                                    "maximumWarning": "2mb",
                                     "maximumError": "5mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
-                                    "maximumWarning": "2kb",
-                                    "maximumError": "4kb"
+                                    "maximumWarning": "10kb",
+                                    "maximumError": "15kb"
                                 }
                             ],
-                            "outputHashing": "all"
+                            "outputHashing": "all",
+                            "optimization": true,
+                            "sourceMap": false,
+                            "extractLicenses": true,
+                            "namedChunks": false
                         },
                         "development": {
                             "optimization": false,

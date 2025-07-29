@@ -22,10 +22,51 @@ export class AppMenu {
         this.model = [
             {
                 label: 'applications Pack ',
-                items: [
+                items: [{
+                    label: 'Audit Application',
+                    icon: 'pi pi-fw pi-search',
+                    items: [
+                            {
+                                label: 'Démarrer Audit',
+                                icon: 'pi pi-fw pi-play',
+                                routerLink: ['/uikit/start-audit']
+                                // routerLink: ['/audit/start']
+                            },
+                            {
+                                label: 'Audits',
+                                icon: 'pi pi-fw pi-list',
+                                routerLink: ['/uikit/audit']
+
+                                // routerLink: ['/audit/list']
+                            },
+                            {
+                                label: 'Actions',
+                                icon: 'pi pi-fw pi-cog',
+                                 routerLink: ['/uikit/actions']
+
+                                // routerLink: ['/audit/actions']
+                            },
+                            {
+                                label: 'Planning',
+                                icon: 'pi pi-fw pi-calendar',
+                                // routerLink: ['/audit/planning']
+                            },
+                            {
+                                label: 'Reporting',
+                                icon: 'pi pi-fw pi-chart-bar',
+                                // routerLink: ['/audit/reporting']
+                            },
+                        ]
+                    },
                     { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
                     { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
                     { label: 'Test Unitaire', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
+                    {label: 'Camunda',
+                        icon: 'pi pi-fw pi-search',
+                        items: [{ label: 'Modeler', icon: 'pi pi-fw pi-book', routerLink: ['/modeler']},
+                                { label: 'Clusters', icon: 'pi pi-fw pi-book', routerLink: ['/clusters']}
+                        ]}
+
                 ]
             },
         ];
