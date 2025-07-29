@@ -29,32 +29,27 @@ export class AppMenu {
                             {
                                 label: 'Démarrer Audit',
                                 icon: 'pi pi-fw pi-play',
-                                routerLink: ['/uikit/start-audit']
-                                // routerLink: ['/audit/start']
+                                routerLink: ['/start-audit']
                             },
                             {
                                 label: 'Audits',
                                 icon: 'pi pi-fw pi-list',
-                                routerLink: ['/uikit/audit']
+                                routerLink: ['/audit']
 
-                                // routerLink: ['/audit/list']
                             },
                             {
                                 label: 'Actions',
                                 icon: 'pi pi-fw pi-cog',
-                                 routerLink: ['/uikit/actions']
-
-                                // routerLink: ['/audit/actions']
+                                 routerLink: ['/actions']
                             },
                             {
                                 label: 'Planning',
                                 icon: 'pi pi-fw pi-calendar',
-                                // routerLink: ['/audit/planning']
+                                routerLink: ['/Planning']
                             },
                             {
                                 label: 'Reporting',
                                 icon: 'pi pi-fw pi-chart-bar',
-                                // routerLink: ['/audit/reporting']
                             },
                         ]
                     },

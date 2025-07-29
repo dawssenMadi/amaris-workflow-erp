@@ -1,0 +1,229 @@
+<div class="card">
+
+    
+    <p-table
+        #dt1
+        [value]="audits"
+        dataKey="id"
+        [rows]="10"
+        [loading]="loading"
+        [rowHover]="true"
+        [showGridlines]="true"
+        [paginator]="true"
+        [globalFilterFields]="['domain', 'processus', 'status', 'audite', 'auditeur']"
+        responsiveLayout="scroll"
+    >
+        <ng-template #caption>
+            <div class="flex justify-between items-center flex-column sm:flex-row">
+                <button pButton label="Clear" class="p-button-outlined mr-2" icon="pi pi-filter-slash" (click)="clear(dt1)"></button>
+                <button pButton label="Planifier Audit" class="p-button-outlined" icon="pi pi-plus" (click)="planifierAudit()"></button>
+                <p-iconfield iconPosition="left" class="ml-auto">
+                    <p-inputicon>
+                        <i class="pi pi-search"></i>
+                    </p-inputicon>
+                    <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Rechercher..." />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        
+        <ng-template #header>
+            <tr>
+                <th style="min-width: 12rem">
+                    <div class="flex justify-between items-center">
+                        Domain
+                        <p-columnFilter field="domain" matchMode="equals" display="menu">
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-select [ngModel]="value" [options]="domains" (onChange)="filter($event.value)" placeholder="Tous" [style]="{ 'min-width': '12rem' }">
+                                    <ng-template let-option #item>
+                                        <span>{{ option.label }}</span>
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 12rem">
+                    <div class="flex justify-between items-center">
+                        Processus
+                        <p-columnFilter field="processus" matchMode="equals" display="menu">
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-select [ngModel]="value" [options]="processus" (onChange)="filter($event.value)" placeholder="Tous" [style]="{ 'min-width': '12rem' }">
+                                    <ng-template let-option #item>
+                                        <span>{{ option.label }}</span>
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 10rem">
+                    <div class="flex justify-between items-center">
+                        Date Prévue
+                        <p-columnFilter type="date" field="datePrevue" display="menu" placeholder="dd/mm/yyyy"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 10rem">
+                    <div class="flex justify-between items-center">
+                        Date Réalisation
+                        <p-columnFilter type="date" field="dateRealisation" display="menu" placeholder="dd/mm/yyyy"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 10rem">
+                    <div class="flex justify-between items-center">
+                        Status
+                        <p-columnFilter field="status" matchMode="equals" display="menu">
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-select [ngModel]="value" [options]="statusOptions" (onChange)="filter($event.value)" placeholder="Tous" [style]="{ 'min-width': '10rem' }">
+                                    <ng-template let-option #item>
+                                        <span [class]="'audit-badge status-' + option.value">{{ option.label }}</span>
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 12rem">
+                    <div class="flex justify-between items-center">
+                        Audité
+                        <p-columnFilter type="text" field="audite" display="menu" placeholder="Rechercher par audité"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 12rem">
+                    <div class="flex justify-between items-center">
+                        Auditeur
+                        <p-columnFilter type="text" field="auditeur" display="menu" placeholder="Rechercher par auditeur"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 8rem">Actions</th>
+            </tr>
+        </ng-template>
+        
+        <ng-template #body let-audit>
+            <tr>
+                <td>{{ audit.domain }}</td>
+                <td>{{ audit.processus }}</td>
+                <td>{{ audit.datePrevue | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ audit.dateRealisation | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                    <p-tag [value]="audit.status" [severity]="getStatusSeverity(audit.status)" />
+                </td>
+                <td>{{ audit.audite }}</td>
+                <td>{{ audit.auditeur }}</td>
+                <td>
+                    <div class="flex gap-2">
+                        <button pButton icon="pi pi-eye" class="p-button-text p-button-info" 
+                                pTooltip="Voir" tooltipPosition="top" (click)="viewAudit(audit)"></button>
+                        <button pButton icon="pi pi-pencil" class="p-button-text p-button-warning" 
+                                pTooltip="Modifier" tooltipPosition="top" (click)="editAudit(audit)"></button>
+                        <button pButton icon="pi pi-trash" class="p-button-text p-button-danger" 
+                                pTooltip="Supprimer" tooltipPosition="top" (click)="deleteAudit(audit)"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        
+        <ng-template #emptymessage>
+            <tr>
+                <td colspan="8">Aucun audit trouvé.</td>
+            </tr>
+        </ng-template>
+        
+        <ng-template #loadingbody>
+            <tr>
+                <td colspan="8">Chargement des données d'audit. Veuillez patienter.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Modal de planification -->
+<p-dialog header="Planifier un Audit" [(visible)]="displayModal" [modal]="true" [responsive]="true" 
+          [style]="{width: '80vw', minWidth: '400px', height: '50vh'}" [closable]="true" (onHide)="closeModal()">
+    
+    <!-- Étape 1: Sélection de la date et heure -->
+<!-- Étape 1: Sélection de la date et l'heure -->
+<div *ngIf="currentStep === 1">
+    <h4>Sélectionnez la date et l'heure de l'audit</h4>
+    <div class="flex flex-column gap-3 mt-3">
+        <div class="field">
+            <label for="audit-date">Date :</label>
+            <p-calendar id="audit-date"
+                        [(ngModel)]="selectedDate"
+                        dateFormat="dd/mm/yy"
+                        placeholder="Choisir une date"
+                        [style]="{ 'width': '100%' }">
+            </p-calendar>
+        </div>
+        <div class="field">
+            <label for="audit-time">Heure :</label>
+            <p-calendar id="audit-time"
+                        [(ngModel)]="selectedTime"
+                        [timeOnly]="true"
+                        hourFormat="24"
+                        placeholder="Choisir une heure"
+                        [style]="{ 'width': '100%' }">
+            </p-calendar>
+        </div>
+    </div>
+    <div class="flex justify-end mt-4">
+        <button pButton label="Suivant"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                [disabled]="!selectedDate || !selectedTime"
+                (click)="nextStep()">
+        </button>
+    </div>
+</div>
+
+    <!-- Étape 2: Détails de l'audit -->
+    <div *ngIf="currentStep === 2">
+        <h4>Détails de l'audit</h4>
+        <div class="flex flex-column gap-3 mt-3">
+            <div class="field">
+                <label for="domain-select">Domain :</label>
+                <p-select id="domain-select" [(ngModel)]="newAudit.domain" [options]="domains" 
+                         placeholder="Sélectionner un domain" optionLabel="label" optionValue="value"
+                         [style]="{'width': '100%'}"></p-select>
+            </div>
+            
+            <div class="field">
+                <label for="processus-select">Processus :</label>
+                <p-select id="processus-select" [(ngModel)]="newAudit.processus" [options]="processus" 
+                         placeholder="Sélectionner un processus" optionLabel="label" optionValue="value"
+                         [style]="{'width': '100%'}"></p-select>
+            </div>
+            
+            <div class="field">
+                <label for="date-prevue">Date Prévue :</label>
+                <p-calendar id="date-prevue" [(ngModel)]="newAudit.datePrevue" dateFormat="dd/mm/yy" 
+                           placeholder="Date prévue" [style]="{'width': '100%'}"></p-calendar>
+            </div>
+            
+            <div class="field">
+                <label for="audite-input">Audité :</label>
+                <input pInputText id="audite-input" [(ngModel)]="newAudit.audite" 
+                       placeholder="Nom de l'audité" [style]="{'width': '100%'}" />
+            </div>
+            
+            <div class="field">
+                <label for="auditeur-select">Auditeur :</label>
+                <p-select id="auditeur-select" [(ngModel)]="newAudit.auditeur" [options]="auditeurs" 
+                         placeholder="Sélectionner un auditeur" optionLabel="label" optionValue="value"
+                         [style]="{'width': '100%'}"></p-select>
+            </div>
+        </div>
+        
+        <div class="flex justify-between mt-4">
+            <button pButton label="Précédent" icon="pi pi-arrow-left" 
+                    class="p-button-outlined" (click)="previousStep()"></button>
+            <button pButton label="Valider" icon="pi pi-check" 
+                    [disabled]="!isFormValid()" (click)="validatePlanification()"></button>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Toast pour les messages -->
+<p-toast></p-toast>
+
+<!-- Confirmation dialog -->
+<p-confirmDialog></p-confirmDialog>
