@@ -1,0 +1,138 @@
+<div class="confluence-dashboard">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <span class="app-name">Base de connaissances</span>
+      </div>
+
+      <div class="search-section">
+        <div class="search-container">
+          <input
+            type="text"
+            placeholder="Rechercher dans la base de connaissances..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="search()"
+            class="search-input" />
+          <button class="search-btn" (click)="search()"></button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <div class="dashboard-body">
+    <aside class="sidebar">
+      <nav class="navigation">
+        <ul class="nav-list">
+          <li
+            *ngFor="let item of navigationItems"
+            class="nav-item"
+            [class.active]="item.active"
+            (click)="selectNavigationItem(item)">
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="pinned-spaces">
+        <h3 class="section-title">Espaces épinglés</h3>
+        <ul class="pinned-list">
+          <li *ngFor="let space of pinnedSpaces" class="pinned-item">
+            <span class="space-icon">{{ space.icon }}</span>
+            <span class="space-name">{{ space.name }}</span>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="content-section">
+        <div class="section-header">
+          <h2 class="section-title">Reprenez où vous vous êtes arrêté</h2>
+        </div>
+
+        <div class="recent-pages-grid">
+          <div
+            *ngFor="let page of recentPages"
+            class="recent-page-card"
+            (click)="openRecentPage(page)">
+            <div class="page-content">
+              <h3 class="page-title">{{ page.title }}</h3>
+              <div class="page-meta">
+                <span class="space-name">{{ page.spaceName }}</span>
+                <span class="separator">•</span>
+                <span class="last-viewed">{{ formatDate(page.lastViewed) }} à {{ formatTime(page.lastViewed) }}</span>
+              </div>
+            </div>
+            <div class="page-actions">
+              <button class="action-btn">⋯</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity Section -->
+      <section class="content-section">
+        <div class="section-header">
+          <h2 class="section-title">Découvrez ce qui se passe</h2>
+
+          <div class="tabs-container">
+            <div class="tabs">
+              <button
+                *ngFor="let tab of tabs"
+                class="tab"
+                [class.active]="activeTab === tab"
+                (click)="selectTab(tab)">
+                {{ tab }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="activity-cards">
+          <div
+            *ngFor="let card of activityCards"
+            class="activity-card"
+            (click)="previewContent(card)">
+            <div class="card-header">
+              <div class="author-info">
+                <div class="author-avatar">{{ card.author.charAt(0) }}</div>
+                <div class="author-details">
+                  <span class="author-name">{{ card.author }}</span>
+                  <span class="creation-date">{{ formatDate(card.creationDate) }}</span>
+                </div>
+              </div>
+
+              <div class="content-type-badge" [attr.data-type]="card.type">
+                {{ card.type === 'page' ? '📄' : card.type === 'blog' ? '📝' : '💬' }}
+              </div>
+            </div>
+
+            <div class="card-content">
+              <h3 class="content-title">{{ card.title }}</h3>
+              <p class="content-preview">{{ card.content }}</p>
+            </div>
+
+            <div class="card-footer">
+              <div class="metadata">
+                <span class="owner">Propriétaire: {{ card.owner }}</span>
+                <span class="separator">•</span>
+                <span class="space">{{ card.space }}</span>
+              </div>
+
+              <div class="card-actions">
+                <button class="action-btn like-btn">👍</button>
+                <button class="action-btn comment-btn">💬</button>
+                <button class="action-btn share-btn">📤</button>
+                <button class="action-btn more-btn">⋯</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+

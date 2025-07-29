@@ -7,6 +7,7 @@ import { Notfound } from './app/pages/notfound/notfound';
 import { DictionaryTable } from './app/pages/uikit/dictionary/dictionnaryTable/DictionaryTable';
 import { ModelerComponent } from './app/pages/modeler/modeler.component';
 import { ClustersComponent } from './app/pages/clusters/clusters.component';
+import { WikiComponent } from './app/pages/wiki/wiki.component';
 
 export const appRoutes: Routes = [
     {
@@ -20,6 +21,7 @@ export const appRoutes: Routes = [
             { path: 'dictionnaire', component: DictionaryTable },
             { path: 'modeler', component: ModelerComponent },
             { path: 'clusters', component: ClustersComponent },
+            { path: 'wiki', component: WikiComponent },
         ]
     },
     { path: 'landing', component: Landing },
