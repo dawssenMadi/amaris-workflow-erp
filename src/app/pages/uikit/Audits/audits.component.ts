@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuditService } from '../service/audit.service';
+import { AuditService } from '../../service/audit.service';
+import { PaginatorModule } from 'primeng/paginator';
 
 @Component({
   selector: 'app-audits',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule , PaginatorModule],
   template: `
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6">
       <h2 class="text-3xl font-bold mb-6 text-center">Mes Audits</h2>
@@ -15,7 +16,7 @@ import { AuditService } from '../service/audit.service';
         <div id="print-section" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           <div
             class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-xl cursor-pointer w-full flex flex-col gap-4"
-            *ngFor="let audit of audits"
+            *ngFor="let audit of visibleAudits"
             (click)="selectAudit(audit)"
           >
             <div class="flex justify-between items-center mb-2">
@@ -46,6 +47,13 @@ import { AuditService } from '../service/audit.service';
               </div>
             </div>
           </div>
+        </div>
+
+        <div *ngIf="loading" class="flex justify-center mt-6">
+          <span class="text-blue-600 dark:text-blue-300">Chargement...</span>
+        </div>
+        <div *ngIf="allLoaded && audits.length > 0" class="flex justify-center mt-6">
+          <span class="text-gray-500 dark:text-gray-400">Tous les audits sont affichés.</span>
         </div>
       </ng-container>
 
@@ -156,7 +164,6 @@ import { AuditService } from '../service/audit.service';
           <div class="flex gap-3">
             <button class="px-3 py-2 rounded border text-sm font-semibold bg-green-100 dark:bg-green-900" (click)="setResponse('OK')" [disabled]="!isRowSelected()">👍 OK</button>
             <button class="px-3 py-2 rounded border text-sm font-semibold bg-red-100 dark:bg-red-900" (click)="setResponse('NOT OK')" [disabled]="!isRowSelected()">👎 NOT OK</button>
-            <button class="px-3 py-2 rounded border text-sm font-semibold bg-yellow-100 dark:bg-yellow-900" (click)="setResponse('NC')" [disabled]="!isRowSelected()">⚠ NC</button>
             <button class="px-3 py-2 rounded border text-sm font-semibold bg-gray-100 dark:bg-gray-700" (click)="setResponse('NA')" [disabled]="!isRowSelected()">🚫 NA</button>
           </div>
         </div>
@@ -168,6 +175,10 @@ import { AuditService } from '../service/audit.service';
 export class AuditsComponent implements OnInit {
   viewMode: 'list' | 'editor' = 'list';
   audits: any[] = [];
+  visibleAudits: any[] = [];
+  batchSize = 6;
+  loading = false;
+  allLoaded = false;
   currentAudit: any = null;
   selectedRow = { table: '', index: null as number | null };
   showModal = false;
@@ -176,8 +187,33 @@ export class AuditsComponent implements OnInit {
 
   ngOnInit() {
     this.audits = this.auditService.getAudits();
+    this.visibleAudits = [];
+    this.allLoaded = false;
+    this.loadMore();
   }
 
+  loadMore() {
+    if (this.loading || this.allLoaded) return;
+    this.loading = true;
+    setTimeout(() => {
+      const next = this.visibleAudits.length + this.batchSize;
+      this.visibleAudits = this.audits.slice(0, next);
+      this.loading = false;
+      if (this.visibleAudits.length >= this.audits.length) {
+        this.allLoaded = true;
+      }
+    }, 300); // Simule un chargement réseau
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    if (this.viewMode !== 'list' || this.loading || this.allLoaded) return;
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const threshold = document.body.offsetHeight - 100;
+    if (scrollPosition >= threshold) {
+      this.loadMore();
+    }
+  }
   isDarkMode(): boolean {
     return document.documentElement.classList.contains('app-dark');
   }
@@ -188,9 +224,13 @@ export class AuditsComponent implements OnInit {
     this.selectedRow = { table: 'model', index: 0 };
   }
 
-  resetSelection() {
-    this.selectedRow = { table: '', index: null };
-  }
+resetSelection() {
+  this.selectedRow = { table: '', index: null };
+  this.visibleAudits = [];
+  this.allLoaded = false;
+  this.loading = false;
+  this.loadMore();
+}
 
   selectRow(table: string, index: number) {
     this.selectedRow = { table, index };
@@ -270,7 +310,6 @@ export class AuditsComponent implements OnInit {
     if (!response) return '';
     if (response === 'OK') return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
     if (response === 'NOT OK') return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
-    if (response === 'NC') return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
     if (response === 'NA') return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
     return '';
   }

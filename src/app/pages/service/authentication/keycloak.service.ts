@@ -49,4 +49,27 @@ export class KeycloakService {
         const userInfo = this.getUserInfo();
         return userInfo ? userInfo.username : null;
     }
+    getUserId(): string | null {
+    const token = this.getToken();
+    if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub; // ← ID unique Keycloak
+    }
+    return null;
+}
+    isLoggedIn(): boolean {
+        return !!this.getToken();
+    }
+
+    logout(redirectUri: string = window.location.origin): void {
+        this.keycloak.logout({ redirectUri });
+    }
+    hasRole(role: string): boolean {
+        const token = this.getToken();
+        if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.realm_access && payload.realm_access.roles.includes(role);
+        }
+        return false;
+    }
 }

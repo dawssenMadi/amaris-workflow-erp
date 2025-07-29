@@ -23,35 +23,35 @@ export class AppMenu {
             {
                 label: 'applications Pack ',
                 items: [
-                    { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/uikit/table'] },
+                    { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
   {
                     label: 'Audit Application',
                     icon: 'pi pi-fw pi-search',
- items: [
+        items: [
                             {
                                 label: 'Démarrer Audit',
                                 icon: 'pi pi-fw pi-play',
-                                routerLink: ['/uikit/start-audit']
+                                routerLink: ['/start-audit']
                                 // routerLink: ['/audit/start']
                             },
                             {
                                 label: 'Audits',
                                 icon: 'pi pi-fw pi-list',
-                                routerLink: ['/uikit/audit']
+                                routerLink: ['/audit']
 
                                 // routerLink: ['/audit/list']
                             },
                             {
                                 label: 'Actions',
                                 icon: 'pi pi-fw pi-cog',
-                                 routerLink: ['/uikit/actions']
+                                 routerLink: ['/actions']
 
                                 // routerLink: ['/audit/actions']
                             },
                             {
                                 label: 'Planning',
                                 icon: 'pi pi-fw pi-calendar',
-                                // routerLink: ['/audit/planning']
+                                routerLink: ['/Planning']
                             },
                             {
                                 label: 'Reporting',
@@ -60,8 +60,6 @@ export class AppMenu {
                             },
                         ]
                     },
-                    { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
-                    { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
                     { label: 'Test Unitaire', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
                 ]
             },
