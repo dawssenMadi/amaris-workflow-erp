@@ -14,9 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { FullCalendarModule } from '@fullcalendar/angular';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import { CalendarOptions } from '@fullcalendar/core';
+
 interface Audit {
     id?: number;
     domain?: string;
@@ -48,7 +46,6 @@ interface Audit {
         DialogModule,
         CalendarModule,
         ConfirmDialogModule,
-        FullCalendarModule
     ],
     providers: [ConfirmationService, MessageService]
 })
@@ -65,7 +62,7 @@ export class Planning implements OnInit {
     displayModal: boolean = false;
     currentStep: number = 1;
 selectedDate: Date | null = null;
-selectedTime: Date | null = null;    newAudit: Audit = {};calendarPlugins = [dayGridPlugin];
+selectedTime: Date | null = null;    newAudit: Audit = {};
 
 events = []; // Tu peux ajouter ici des audits programmés ou horaires
 

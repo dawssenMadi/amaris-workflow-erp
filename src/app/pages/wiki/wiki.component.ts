@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { EditorModule } from 'primeng/editor';
 
 interface RecentPage {
   id: string;
@@ -34,13 +36,48 @@ interface PinnedSpace {
 
 @Component({
   selector: 'app-wiki',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule , EditorModule],
   templateUrl: './wiki.component.html',
   styleUrl: './wiki.component.scss'
 })
 export class WikiComponent {
   searchQuery = '';
   activeTab = 'Suivis';
+newPostTitle = '';
+newPostContent = '';
+chatbotOpen = false;
+userInput = '';
+messages: { sender: 'user' | 'ai'; text: string }[] = [];
+showEditor = false;
+@ViewChild('postCard', { static: false }) postCardRef!: ElementRef;
+@HostListener('document:click', ['$event'])
+onClickOutside(event: MouseEvent) {
+  const clickedInside = this.postCardRef?.nativeElement.contains(event.target);
+  if (!clickedInside) {
+    this.showEditor = false;
+  }
+}
+
+toggleChatbot() {
+  this.chatbotOpen = !this.chatbotOpen;
+}
+
+sendMessage() {
+  const message = this.userInput.trim();
+  if (!message) return;
+
+  this.messages.push({ sender: 'user', text: message });
+
+  // Simuler réponse IA (à remplacer par appel API)
+  setTimeout(() => {
+    this.messages.push({
+      sender: 'ai',
+      text: `🤖 Réponse simulée à: "${message}"`
+    });
+  }, 800);
+
+  this.userInput = '';
+}
 
   navigationItems: NavigationItem[] = [
     { label: 'Pour vous', icon: '👤', active: true },
@@ -83,7 +120,7 @@ export class WikiComponent {
     }
   ];
 
-  tabs = ['Suivis', 'Populaire', 'Annonces', 'Calendriers'];
+  tabs = ['Recent', 'Populaire'];
 
   activityCards: ActivityCard[] = [
     {
@@ -117,6 +154,36 @@ export class WikiComponent {
       type: 'blog'
     }
   ];
+publishPost() {
+  if (!this.newPostTitle.trim()) {
+    alert('Le titre est obligatoire.');
+    return;
+  }
+  if (!this.newPostContent.trim()) {
+    alert('Le contenu de l’article ne peut pas être vide.');
+    return;
+  }
+
+const newCard: ActivityCard = {
+  id: Date.now().toString(),
+  author: 'Moi',
+  creationDate: new Date(),
+  title: this.newPostTitle,
+  content: this.newPostContent,
+  owner: 'Moi',
+  space: 'Espace personnel',
+  type: 'page' // ✅ 
+};
+
+
+
+  this.activityCards.unshift(newCard);
+
+  this.newPostTitle = '';
+  this.newPostContent = '';
+  this.showEditor = false;
+}
+
 
   selectNavigationItem(item: NavigationItem) {
     this.navigationItems.forEach(nav => nav.active = false);

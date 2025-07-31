@@ -48,6 +48,44 @@
     </aside>
 
     <main class="main-content">
+      <section class="content-section post-creation">
+      <div #postCard class="create-post-card" (click)="showEditor = true" tabindex="0">
+        <div class="post-top">
+          <div class="avatar">🧑</div>
+            <input
+              type="text"
+              placeholder="Titre de l’article"
+              [(ngModel)]="newPostTitle"
+              class="post-title-input"
+              (focus)="showEditor = true"
+            />
+        </div>
+
+  <p-editor
+    *ngIf="showEditor"
+    [(ngModel)]="newPostContent"
+    [style]="{height:'180px'}"
+    [styleClass]="'post-editor'"
+    [placeholder]="'Décrivez votre problème ou partagez votre retour d’expérience...'"
+  ></p-editor>
+
+  <hr class="separator" *ngIf="showEditor"/>
+
+  <div class="post-actions-bar" *ngIf="showEditor">
+    <button class="action-btn" title="Ajouter une capture">
+      <i class="fa fa-camera"></i> <span>Capture</span>
+    </button>
+    <button class="action-btn" title="Choisir une catégorie">
+      <i class="fa fa-tags"></i> <span>Catégorie</span>
+    </button>
+    <button class="publish-btn" (click)="publishPost()">Publier l’article</button>
+  </div>
+</div>
+
+</section>
+
+
+     
       <section class="content-section">
         <div class="section-header">
           <h2 class="section-title">Reprenez où vous vous êtes arrêté</h2>
@@ -112,7 +150,7 @@
 
             <div class="card-content">
               <h3 class="content-title">{{ card.title }}</h3>
-              <p class="content-preview">{{ card.content }}</p>
+              <p class="content-preview" [innerHTML]="card.content"></p>
             </div>
 
             <div class="card-footer">
@@ -134,5 +172,26 @@
       </section>
     </main>
   </div>
+  <button class="chatbot-button" (click)="toggleChatbot()">
+  💬
+</button>
+<div class="chatbot-panel" *ngIf="chatbotOpen">
+  <div class="chatbot-header">
+    <span>Assistant IA</span>
+    <button class="close-btn" (click)="toggleChatbot()">✖</button>
+  </div>
+
+  <div class="chatbot-messages">
+    <div *ngFor="let msg of messages" [class.user]="msg.sender === 'user'" [class.ai]="msg.sender === 'ai'">
+      {{ msg.text }}
+    </div>
+  </div>
+
+  <div class="chatbot-input">
+    <input [(ngModel)]="userInput" placeholder="Posez votre question..." (keyup.enter)="sendMessage()" />
+    <button (click)="sendMessage()">Envoyer</button>
+  </div>
+</div>
+
 </div>
 
