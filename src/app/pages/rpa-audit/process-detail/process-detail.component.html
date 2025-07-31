@@ -17,6 +17,12 @@
     </div>
 
     <div class="header-actions" *ngIf="process">
+      <div class="websocket-status" [ngClass]="{'connected': isWebSocketConnected, 'disconnected': !isWebSocketConnected}">
+        <i class="pi pi-circle-fill"></i>
+        <span>{{ isWebSocketConnected ? 'WebSocket Connecté' : 'WebSocket Déconnecté' }}</span>
+      </div>
+
+
       <p-button
         label="Lancer Audit Complet"
         icon="pi pi-play"
@@ -93,12 +99,9 @@
     </div>
   </div>
 
-  <!-- Audit Rules Section -->
   <div class="audit-rules-section" *ngIf="process">
     <h2 class="section-title">Règles d'Audit</h2>
-
-    <!-- Rules Overview Grid -->
-    <div class="rules-grid">
+      <div class="rules-grid">
       <div
         *ngFor="let rule of process.auditRules"
         class="rule-card"
@@ -131,62 +134,192 @@
 
     <!-- Detailed Activities Panel -->
     <div class="activities-section">
-      <h3 class="subsection-title">Détails des Activités par Règle</h3>
+      <h3 class="subsection-title">Stages d'Audit Séquentiels</h3>
       <div class="rules-activities-container">
         <div
           *ngFor="let rule of process.auditRules"
-          class="rule-activities-panel"
-          [ngClass]="{'rule-completed': isRuleCompleted(rule), 'rule-validated': rule.isValidated}">
+          class="rule-activities-panel stage-panel"
+          [ngClass]="{
+            'rule-completed': isRuleCompleted(rule),
+            'rule-validated': rule.isValidated,
+            'rule-disabled': !rule.isEnabled,
+            'rule-loading': rule.isLoading
+          }">
 
-          <div class="rule-panel-header" (click)="toggleRuleExpansion(rule.id)">
+          <div class="rule-panel-header" (click)="rule.isEnabled ? toggleRuleExpansion(rule.id) : null">
             <div class="rule-title-section">
-              <i [class]="getRuleIcon(rule.status)" [ngClass]="getRuleStyleClass(rule.status)"></i>
-              <h4 [ngClass]="{'completed-rule-title': isRuleCompleted(rule)}">{{ rule.name }}</h4>
-              <p-tag [value]="rule.category" severity="info" class="rule-category-tag"></p-tag>
+              <!-- Stage indicator -->
+              <div class="stage-indicator" [ngClass]="{
+                'stage-active': rule.isEnabled && !rule.isValidated,
+                'stage-completed': rule.isValidated,
+                'stage-disabled': !rule.isEnabled,
+                'stage-loading': rule.isLoading
+              }">
+                <span class="stage-number" *ngIf="!rule.isLoading">{{ rule.stage }}</span>
+                <i class="pi pi-spin pi-spinner" *ngIf="rule.isLoading"></i>
+              </div>
+
+              <div class="rule-info">
+                <h4 [ngClass]="{
+                  'completed-rule-title': isRuleCompleted(rule),
+                  'disabled-rule-title': !rule.isEnabled,
+                  'loading-rule-title': rule.isLoading
+                }">
+                  Stage {{ rule.stage }}: {{ rule.name }}
+                </h4>
+                <p class="rule-description" [ngClass]="{'text-gray-400': !rule.isEnabled}">
+                  {{ rule.description }}
+                </p>
+                <p-tag [value]="rule.category"
+                       [severity]="rule.isEnabled ? 'info' : 'secondary'"
+                       class="rule-category-tag">
+                </p-tag>
+              </div>
+
+              <!-- Loading message -->
+              <div *ngIf="rule.isLoading" class="loading-message">
+                <i class="pi pi-spin pi-spinner text-blue-500"></i>
+                <span>Chargement en cours...</span>
+              </div>
+
+              <!-- Disabled message -->
+              <div *ngIf="!rule.isEnabled && !rule.isLoading" class="disabled-message">
+                <i class="pi pi-lock text-gray-400"></i>
+                <span>Stage verrouillé</span>
+              </div>
             </div>
 
             <div class="rule-status-section">
-              <span class="activities-count">
+              <span class="activities-count" [ngClass]="{'text-gray-400': !rule.isEnabled}">
                 {{ getValidatedActivitiesCount(rule) }}/{{ rule.activities.length }}
               </span>
+
+              <!-- Validate button for completed rules -->
+              <p-button
+                *ngIf="rule.activities.length > 0 && isRuleCompleted(rule) && !rule.isValidated && rule.isEnabled"
+                label="Valider Stage {{ rule.stage }}"
+                icon="pi pi-check"
+                severity="success"
+                size="small"
+                (onClick)="validateRule(rule); $event.stopPropagation()"
+                pTooltip="Valider ce stage et passer au suivant">
+              </p-button>
+
+              <!-- Manual validation buttons for enabled rules with activities -->
+              <div *ngIf="rule.activities.length > 0 && !rule.isValidated && rule.isEnabled"
+                   class="manual-validation-buttons"
+                   style="display: flex; gap: 8px; margin-left: 8px;">
+                <p-button
+                  label="Marquer Valide"
+                  icon="pi pi-thumbs-up"
+                  severity="success"
+                  size="small"
+                  [outlined]="true"
+                  (onClick)="markRuleAsValid(rule); $event.stopPropagation()"
+                  pTooltip="Marquer cette règle comme valide (force la validation)">
+                </p-button>
+
+                <p-button
+                  label="Marquer Invalide"
+                  icon="pi pi-thumbs-down"
+                  severity="danger"
+                  size="small"
+                  [outlined]="true"
+                  (onClick)="markRuleAsInvalid(rule); $event.stopPropagation()"
+                  pTooltip="Marquer cette règle comme invalide">
+                </p-button>
+              </div>
+
+              <!-- Validated indicator -->
+              <p-tag
+                *ngIf="rule.isValidated"
+                [value]="rule.validatedBy === 'Manual-Valid' ? '✅ Valide (Manuel)' :
+                         rule.validatedBy === 'Manual-Invalid' ? '❌ Invalide (Manuel)' :
+                         '✅ Validé'"
+                [severity]="rule.validatedBy === 'Manual-Invalid' ? 'danger' : 'success'"
+                [icon]="rule.validatedBy === 'Manual-Invalid' ? 'pi pi-times' : 'pi pi-check'">
+              </p-tag>
+
               <i class="pi pi-chevron-down expand-icon"
-                 [ngClass]="{'expanded': isRuleExpanded(rule.id)}"></i>
+                 [ngClass]="{
+                   'expanded': isRuleExpanded(rule.id),
+                   'text-gray-400': !rule.isEnabled,
+                   'cursor-pointer': rule.isEnabled,
+                   'cursor-not-allowed': !rule.isEnabled
+                 }"></i>
             </div>
           </div>
 
           <div class="rule-activities-content"
-               [ngClass]="{'expanded': isRuleExpanded(rule.id)}">
+               [ngClass]="{'expanded': isRuleExpanded(rule.id), 'content-disabled': !rule.isEnabled}">
 
-            <div
-              *ngFor="let activity of rule.activities; let i = index"
-              class="activity-item"
-              [ngClass]="{'activity-validated': activity.decision}">
-
-              <div class="activity-content">
-                <span class="activity-number">{{ i + 1 }}.</span>
-                <span class="activity-text" [ngClass]="{'completed-activity': activity.decision}">
-                  {{ activity.rule }}
-                </span>
+            <!-- Loading state for stage -->
+            <div class="stage-loading-message" *ngIf="rule.isLoading">
+              <div class="loading-indicator">
+                <h4>Chargement du Stage {{ rule.stage }}...</h4>
+                <p class="text-gray-600">{{ rule.description }}</p>
+                <div class="loading-progress">
+                  <p-progressBar mode="indeterminate"></p-progressBar>
+                </div>
               </div>
+            </div>
 
-              <div class="activity-actions">
-                <p-button
-                  label="OK"
-                  size="small"
-                  [severity]="activity.decision ? 'success' : 'secondary'"
-                  [outlined]="!activity.decision"
-                  (onClick)="setActivityDecision(rule.id, activity, true)"
-                  class="ok-button">
-                </p-button>
+            <!-- Empty activities message for disabled stages -->
+            <div class="disabled-stage-message" *ngIf="!rule.isEnabled && !rule.isLoading && rule.activities.length === 0">
+              <div class="disabled-indicator">
+                <i class="pi pi-lock text-gray-400" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <h4 class="text-gray-500">Stage {{ rule.stage }} - Verrouillé</h4>
+                <p class="text-gray-400">Validez le stage précédent pour débloquer celui-ci</p>
+                <p-tag value="En attente" severity="secondary" icon="pi pi-clock"></p-tag>
+              </div>
+            </div>
 
-                <p-button
-                  label="NOK"
-                  size="small"
-                  [severity]="!activity.decision ? 'danger' : 'secondary'"
-                  [outlined]="activity.decision"
-                  (onClick)="setActivityDecision(rule.id, activity, false)"
-                  class="nok-button">
-                </p-button>
+            <!-- Activities for active/enabled stages -->
+            <div *ngIf="rule.isEnabled && !rule.isLoading && rule.activities.length > 0" class="activities-list">
+              <div
+                *ngFor="let activity of rule.activities; let i = index"
+                class="activity-item"
+                [ngClass]="{
+                  'activity-validated': activity.decision,
+                  'activity-new': activity.isNew
+                }"
+                [@slideInAnimation]="activity.isNew ? 'in' : 'static'">
+
+                <div class="activity-content">
+                  <span class="activity-number">{{ i + 1 }}.</span>
+                  <span class="activity-text" [ngClass]="{'completed-activity': activity.decision}">
+                    {{ activity.rule }}
+                  </span>
+                </div>
+
+                <div class="activity-actions">
+                  <p-button
+                    label="OK"
+                    size="small"
+                    [severity]="activity.decision ? 'success' : 'secondary'"
+                    [outlined]="!activity.decision"
+                    (onClick)="setActivityDecision(rule.id, activity, true)"
+                    class="ok-button">
+                  </p-button>
+
+                  <p-button
+                    label="NOK"
+                    size="small"
+                    [severity]="!activity.decision ? 'danger' : 'secondary'"
+                    [outlined]="activity.decision"
+                    (onClick)="setActivityDecision(rule.id, activity, false)"
+                    class="nok-button">
+                  </p-button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty activities message for active stage -->
+            <div class="empty-activities-message"
+                 *ngIf="rule.isEnabled && !rule.isLoading && rule.activities.length === 0">
+              <div class="loading-indicator">
+                <i class="pi pi-spin pi-spinner"></i>
+                <p>En attente des résultats d'audit via WebSocket...</p>
               </div>
             </div>
           </div>

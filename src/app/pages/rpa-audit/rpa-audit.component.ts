@@ -90,14 +90,14 @@ export class RpaAuditComponent implements OnInit {
     // Simulation des processus déployés - à remplacer par l'API Operate
     this.deployedProcesses = [
       {
-        id: 'proc-001',
+        id: 'Process_pt085ol',
         name: 'Processus de validation des commandes',
         version: '1.2.0',
         deployedAt: new Date(2025, 6, 25),
         status: 'active',
         description: 'Processus automatisé pour la validation et l\'approbation des commandes clients',
         auditStatus: 'in-progress',
-        auditRules: this.generateAuditRules('proc-001'),
+        auditRules: this.generateAuditRules('Process_pt085ol'),
         completedRules: 3,
         totalRules: 5,
         lastAuditDate: new Date(2025, 6, 28)
