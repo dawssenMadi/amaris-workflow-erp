@@ -14,7 +14,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/amine-refont-audit-and-add-kafka
 interface Audit {
     id?: number;
     domain?: string;
@@ -45,7 +48,11 @@ interface Audit {
         TooltipModule,
         DialogModule,
         CalendarModule,
+<<<<<<< HEAD
         ConfirmDialogModule,
+=======
+        ConfirmDialogModule
+>>>>>>> origin/amine-refont-audit-and-add-kafka
     ],
     providers: [ConfirmationService, MessageService]
 })
@@ -176,7 +183,7 @@ nextStep() {
         if (this.isFormValid()) {
             // Générer un nouvel ID
             const newId = Math.max(...this.audits.map(a => a.id || 0)) + 1;
-            
+
             const auditToAdd: Audit = {
                 id: newId,
                 domain: this.getDomainLabel(this.newAudit.domain!),
@@ -189,7 +196,7 @@ nextStep() {
             };
 
             this.audits = [...this.audits, auditToAdd];
-            
+
             this.messageService.add({
                 severity: 'success',
                 summary: 'Succès',

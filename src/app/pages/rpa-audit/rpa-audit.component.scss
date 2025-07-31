@@ -1,0 +1,519 @@
+.audit-dashboard {
+  padding: 24px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+
+  // Header Section
+  .dashboard-header {
+    margin-bottom: 32px;
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 28px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 8px 0;
+
+      i {
+        color: #3498db;
+      }
+    }
+
+    .page-description {
+      color: #7f8c8d;
+      font-size: 16px;
+      margin: 0;
+    }
+  }
+
+  // Processes List (remplace processes-grid)
+  .processes-list {
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+
+      h2 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+    }
+
+    .process-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .process-list-item {
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        // Audit Status Indicators (barre de gauche)
+        &.audit-status-completed {
+          border-left: 4px solid #27ae60;
+        }
+
+        &.audit-status-in-progress {
+          border-left: 4px solid #f39c12;
+        }
+
+        &.audit-status-not-started {
+          border-left: 4px solid #95a5a6;
+        }
+
+        &.audit-status-failed {
+          border-left: 4px solid #e74c3c;
+        }
+
+        .process-main-info {
+          flex: 1;
+          min-width: 0; // Pour gérer le text overflow
+
+          .process-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+
+            .process-title-section {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+
+              .process-name {
+                font-size: 18px;
+                font-weight: 600;
+                color: #2c3e50;
+                margin: 0;
+              }
+
+              .process-version {
+                background: #ecf0f1;
+                color: #7f8c8d;
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+              }
+            }
+
+            .status-badges {
+              display: flex;
+              gap: 8px;
+              align-items: center;
+            }
+          }
+
+          .process-description {
+            color: #5d6d7e;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0 0 12px 0;
+          }
+
+          .process-meta {
+            display: flex;
+            gap: 16px;
+
+            .meta-item {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 13px;
+              color: #7f8c8d;
+
+              i {
+                width: 16px;
+                color: #3498db;
+              }
+            }
+          }
+        }
+
+        .process-audit-info {
+          min-width: 200px;
+          max-width: 250px;
+
+          .audit-progress {
+            .progress-info {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+
+              .progress-label {
+                font-size: 13px;
+                color: #5d6d7e;
+                font-weight: 500;
+              }
+
+              .progress-count {
+                font-size: 13px;
+                font-weight: 600;
+                color: #2c3e50;
+              }
+            }
+          }
+        }
+
+        .process-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: center;
+        }
+      }
+    }
+  }
+
+  // Process Details Dialog
+  ::ng-deep .p-dialog {
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+
+      .process-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        h2 {
+          margin: 0;
+          color: #2c3e50;
+          font-size: 24px;
+        }
+      }
+
+      .audit-summary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #7f8c8d;
+      }
+    }
+  }
+
+  .process-details-content {
+    max-height: calc(80vh - 200px);
+    overflow-y: auto;
+
+    .process-info-section {
+      margin-bottom: 32px;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+
+      h3 {
+        color: #2c3e50;
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+
+        .info-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          label {
+            font-weight: 600;
+            color: #5d6d7e;
+            font-size: 14px;
+          }
+
+          span {
+            color: #2c3e50;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+
+    .audit-rules-section {
+      .rules-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+
+        h3 {
+          color: #2c3e50;
+          margin: 0;
+          font-size: 20px;
+          font-weight: 600;
+        }
+      }
+
+      .rules-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+
+        .rule-overview-card {
+          background: #ffffff;
+          border: 1px solid #e9ecef;
+          border-radius: 8px;
+          padding: 16px;
+          transition: all 0.3s ease;
+
+          &:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          &.rule-status-completed {
+            border-left: 4px solid #27ae60;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fff9 100%);
+          }
+
+          &.rule-status-in-progress {
+            border-left: 4px solid #f39c12;
+            background: linear-gradient(135deg, #ffffff 0%, #fffef8 100%);
+          }
+
+          &.rule-status-pending {
+            border-left: 4px solid #95a5a6;
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+          }
+
+          &.rule-status-failed {
+            border-left: 4px solid #e74c3c;
+            background: linear-gradient(135deg, #ffffff 0%, #fff8f8 100%);
+          }
+
+          .rule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+
+            .rule-title {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-weight: 600;
+              color: #2c3e50;
+              font-size: 16px;
+
+              i {
+                font-size: 18px;
+              }
+            }
+
+            .validation-badge {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-end;
+              gap: 4px;
+
+              small {
+                color: #7f8c8d;
+                font-size: 11px;
+              }
+            }
+          }
+
+          .rule-description {
+            color: #5d6d7e;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+          }
+
+          .rule-category {
+            margin-bottom: 12px;
+          }
+
+          .activities-summary {
+            .activities-count {
+              font-size: 13px;
+              color: #7f8c8d;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .audit-panel-section {
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+
+        h4 {
+          color: #2c3e50;
+          margin: 0 0 16px 0;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        ::ng-deep .audit-panel-menu {
+          .p-panelmenu-panel {
+            margin-bottom: 8px;
+            border-radius: 6px;
+            overflow: hidden;
+          }
+
+          .p-panelmenu-header {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+
+            &:hover {
+              background: #e9ecef;
+            }
+
+            .p-panelmenu-header-content {
+              padding: 12px 16px;
+              font-weight: 600;
+
+              .p-menuitem-icon {
+                margin-right: 8px;
+                font-size: 16px;
+              }
+            }
+          }
+
+          .p-panelmenu-content {
+            border: 1px solid #e9ecef;
+            border-top: none;
+
+            .p-panelmenu-root {
+              padding: 8px 0;
+
+              .p-menuitem {
+                .p-menuitem-content {
+                  padding: 8px 16px 8px 32px;
+                  transition: all 0.2s ease;
+
+                  &:hover {
+                    background: #f8f9fa;
+                  }
+
+                  .p-menuitem-link {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    text-decoration: none;
+                    color: inherit;
+                    font-size: 14px;
+
+                    .p-menuitem-icon {
+                      font-size: 14px;
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          // Color coding for decisions
+          .text-green-600 {
+            color: #16a085 !important;
+          }
+
+          .text-red-600 {
+            color: #e74c3c !important;
+          }
+
+          .text-blue-600 {
+            color: #3498db !important;
+          }
+
+          .text-gray-600 {
+            color: #7f8c8d !important;
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #e9ecef;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .audit-dashboard {
+    padding: 16px;
+
+    .processes-list .process-list-container {
+      flex-direction: column;
+    }
+
+    .process-details-content {
+      .audit-rules-section .rules-overview {
+        grid-template-columns: 1fr;
+      }
+
+      .process-info-section .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    ::ng-deep .p_dialog {
+      .dialog-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+    }
+  }
+}
+
+// Custom PrimeNG overrides
+::ng-deep {
+  .p-progressbar {
+    height: 8px;
+    border-radius: 4px;
+    background: #ecf0f1;
+
+    .p-progressbar-value {
+      border-radius: 4px;
+      background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+    }
+  }
+
+  .p-tag {
+    font-weight: 500;
+    font-size: 12px;
+  }
+
+  .p-badge {
+    font-weight: 600;
+  }
+
+  .p-button {
+    font-weight: 500;
+  }
+}
