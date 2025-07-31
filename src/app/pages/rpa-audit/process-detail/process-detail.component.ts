@@ -159,19 +159,19 @@ export class ProcessDetailComponent implements OnInit, OnDestroy {
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                         <div style="text-align: center; padding: 8px; background: rgba(34, 197, 94, 0.1); border-radius: 6px;">
                             <div style="font-size: 16px; color: #22c55e;">✅</div>
-                            <div style="font-weight: bold, color: #22c55e;">${okCount}</div>
+                            <div style="font-weight: bold; color: #22c55e;">${okCount}</div>
                             <div style="font-size: 11px; color: #6b7280;">Validées</div>
                         </div>
 
                         <div style="text-align: center; padding: 8px; background: rgba(239, 68, 68, 0.1); border-radius: 6px;">
                             <div style="font-size: 16px; color: #ef4444;">❌</div>
-                            <div style="font-weight: bold, color: #ef4444;">${nokCount}</div>
+                            <div style="font-weight: bold; color: #ef4444;">${nokCount}</div>
                             <div style="font-size: 11px; color: #6b7280;">À corriger</div>
                         </div>
 
                         <div style="text-align: center; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
                             <div style="font-size: 16px; color: #3b82f6;">📈</div>
-                            <div style="font-weight: bold, color: #3b82f6;">${successRate}%</div>
+                            <div style="font-weight: bold; color: #3b82f6;">${successRate}%</div>
                             <div style="font-size: 11px; color: #6b7280;">Réussite</div>
                         </div>
                     </div>
@@ -519,7 +519,6 @@ export class ProcessDetailComponent implements OnInit, OnDestroy {
                 rule.status = 'failed';
                 rule.isLoading = false;
 
-                // Ne pas activer le stage suivant si marqué invalide
                 this.messageService.add({
                     severity: 'warn',
                     summary: `❌ Stage ${rule.stage} marqué INVALIDE`,
@@ -527,7 +526,6 @@ export class ProcessDetailComponent implements OnInit, OnDestroy {
                     life: 5000
                 });
 
-                // Toast d'information supplémentaire
                 setTimeout(() => {
                     this.messageService.add({
                         severity: 'info',

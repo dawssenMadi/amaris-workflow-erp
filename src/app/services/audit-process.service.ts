@@ -16,7 +16,7 @@ export interface ProcessStartResponse {
 })
 export class AuditProcessService {
 
-  private readonly baseUrl = 'http://localhost:8080/api/process';
+  private readonly baseUrl = 'https://audit-spring-ai-xml.onrender.com/api/process';
 
   constructor(private http: HttpClient) {}
 

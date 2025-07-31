@@ -21,7 +21,7 @@ export interface AuditResponse {
 export class AuditService {
 
   // Configuration de l'API
-  private readonly API_BASE_URL = 'http://localhost:8080'; // À modifier selon votre backend
+  private readonly API_BASE_URL = 'https://audit-spring-ai-xml.onrender.com'; // À modifier selon votre backend
   private readonly AUDIT_ENDPOINT = '/audit/symbol';
 
   constructor(private http: HttpClient) {}

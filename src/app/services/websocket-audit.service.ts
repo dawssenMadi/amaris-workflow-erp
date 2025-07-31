@@ -23,7 +23,7 @@ export class WebSocketAuditService implements OnDestroy {
 
   private initializeWebSocketConnection() {
     this.client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/infinitive'),
+      webSocketFactory: () => new SockJS('https://audit-spring-ai-xml.onrender.com/infinitive'),
       debug: (str) => {
         console.log('WebSocket Debug:', str);
       },
@@ -93,7 +93,7 @@ export class WebSocketAuditService implements OnDestroy {
   }
 
   public triggerBackendTest() {
-    fetch('http://localhost:8080/api/websocket/test-transform', {
+    fetch('https://audit-spring-ai-xml.onrender.com/api/websocket/test-transform', {
       method: 'GET'
     })
     .then(response => response.text())
