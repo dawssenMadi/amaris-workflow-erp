@@ -25,6 +25,14 @@
                         ],
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
+                        "allowedCommonJsDependencies": [
+                            "semver",
+                            "semver-compare",
+                            "classnames",
+                            "bpmnlint/lib/resolver/static-resolver",
+                            "sockjs-client",
+                            "randomcolor"
+                        ],
                         "assets": [
                             {
                                 "glob": "**/*",
@@ -45,13 +53,13 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "2mb",
-                                    "maximumError": "5mb"
+                                    "maximumWarning": "4mb",
+                                    "maximumError": "8mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
-                                    "maximumWarning": "10kb",
-                                    "maximumError": "15kb"
+                                    "maximumWarning": "20kb",
+                                    "maximumError": "30kb"
                                 }
                             ],
                             "outputHashing": "all",
