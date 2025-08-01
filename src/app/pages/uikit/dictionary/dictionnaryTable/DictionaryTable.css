@@ -179,3 +179,17 @@
 .back-arrow:hover {
   color: #0056b3; 
 }
+
+.page-loader {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+}
+.page-loader i {
+  font-size: 5rem !important; 
+  color: #007bff; 
+}
+
+
