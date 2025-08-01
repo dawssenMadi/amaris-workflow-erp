@@ -1,14 +1,14 @@
 <div class="card">
-    <div class="font-semibold text-xl mb-4"></div>
-  
-    <!-- Use the new process list component -->
+    <div *ngIf="loading" class="page-loader">
+    <i class="pi pi-spin pi-spinner text-blue-600 text-7xl"></i>
+    </div>
+    <!-- process list component -->
     <app-processus-list
-      *ngIf="!selectedProcess"
-      [processGroups]="processGroups"
-      (processSelected)="onSelectProcess($event)">
+    *ngIf="!selectedProcess && !loading"
+    [processGroups]="processGroups"
+    (processSelected)="onSelectProcess($event)">
     </app-processus-list>
   
-    <!-- Show table for selected process -->
     <div *ngIf="selectedProcess">
     <i class="pi pi-arrow-left back-arrow" (click)="selectedProcess = null" title="Retour"></i>
     <h2 class="font-semibold text-lg text-blue-900 mb-3">
@@ -46,13 +46,6 @@
                 class="p-button-outlined mb-2"
                 icon="pi pi-filter-slash"
                 (click)="clear(dt1)"
-              ></button>
-              <button
-                pButton
-                label="Ajouter un élément"
-                class="p-button-outlined mb-2 ml-2"
-                icon="pi pi-plus"
-                (click)="openNew()"
               ></button>
               <p-multiSelect
                 [options]="elementTypeOptions"
@@ -118,9 +111,9 @@
               <ng-container *ngIf="selectedRow === entry; else emptyCell">
                 <button
                   pButton
-                  icon="pi pi-pencil"
+                  icon="pi pi-comment"
                   class="p-button-rounded p-button-text p-button-sm"
-                  pTooltip="Modifier"
+                  pTooltip="Ajouter une description"
                   tooltipPosition="top"
                   (click)="onUpdateSelected($event)"
                 ></button>
@@ -174,7 +167,6 @@
   
       <p-confirmDialog></p-confirmDialog>
   
-      <!-- Dialog: Create or Edit -->
       <p-dialog
         [(visible)]="entryDialog"
         [style]="{ width: '70vw', 'max-width': '600px' }"
@@ -184,38 +176,6 @@
       >
         <ng-template pTemplate="content">
           <div class="p-formgrid grid">
-            <div class="field col-12 md:col-6">
-              <label for="elementType">Type d'élément</label>
-              <p-dropdown
-                id="elementType"
-                [options]="elementTypeOptions"
-                [(ngModel)]="entry.elementType"
-                placeholder="Sélectionnez un type"
-                [required]="true"
-              ></p-dropdown>
-              <small class="p-error" *ngIf="submitted && !entry.elementType">Le type d'élément est requis.</small>
-            </div>
-            <div class="field col-12 md:col-6">
-              <label for="elementName">Nom de l'élément</label>
-              <input type="text" pInputText id="elementName" [(ngModel)]="entry.elementName" required />
-              <small class="p-error" *ngIf="submitted && !entry.elementName">Le nom de l'élément est requis.</small>
-            </div>
-            <div class="field col-12 md:col-6">
-              <label for="elementId">ID de l'élément</label>
-              <input type="text" pInputText id="elementId" [(ngModel)]="entry.elementId" />
-            </div>
-            <div class="field col-12 md:col-6">
-              <label for="processName">Nom du processus</label>
-              <input type="text" pInputText id="processName" [(ngModel)]="entry.processName" />
-            </div>
-            <div class="field col-12 md:col-6">
-              <label for="processId">ID du processus</label>
-              <input type="text" pInputText id="processId" [(ngModel)]="entry.processId" />
-            </div>
-            <div class="field col-12 md:col-6">
-              <label for="processVersion">Version du processus</label>
-              <input type="text" pInputText id="processVersion" [(ngModel)]="entry.processVersion" />
-            </div>
             <div class="field col-12">
               <label for="description">Description</label>
               <textarea id="description" pInputTextarea [(ngModel)]="entry.description" rows="3" cols="20"></textarea>
@@ -227,8 +187,6 @@
           <button pButton pRipple label="Enregistrer" icon="pi pi-check" (click)="saveEntry()"></button>
         </ng-template>
       </p-dialog>
-  
-      <!-- Dialog: Similarity Search -->
       <p-dialog [(visible)]="similarDialog" [style]="{ width: '800px' }" header="Trouver similaire" [modal]="true" class="p-fluid">
         <ng-template pTemplate="content">
           <div class="field">

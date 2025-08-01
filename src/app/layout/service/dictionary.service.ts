@@ -52,4 +52,9 @@ export class DictionaryService {
     const params = new URLSearchParams({ elementName, threshold: threshold.toString() });
     return this.http.get<any[]>(`${this.apiUrl.replace('/entries', '')}/similar?${params.toString()}`);
   }
+  extractBpmnData(): Observable<string> {
+  const url = this.apiUrl.replace('/entries', '') + '/extract';
+  return this.http.post(url, null, { responseType: 'text' });
+}
+
 }

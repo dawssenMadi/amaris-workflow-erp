@@ -14,7 +14,7 @@ import { ClustersComponent } from './app/pages/clusters/clusters.component';
 import { WikiComponent } from './app/pages/wiki/wiki.component';
 import { RpaAuditComponent } from './app/pages/rpa-audit/rpa-audit.component';
 import { ProcessDetailComponent } from './app/pages/rpa-audit/process-detail/process-detail.component';
-
+import{ WikiDetailComponent } from './app/pages/wiki-detail/wiki-detail.component';
 export const appRoutes: Routes = [
     {
         path: '',
@@ -28,9 +28,14 @@ export const appRoutes: Routes = [
             { path: 'modeler', component: ModelerComponent },
             { path: 'clusters', component: ClustersComponent },
             { path: 'wiki', component: WikiComponent },
+{
+  path: 'wiki/:id',
+  loadComponent: () => import('./app/pages/wiki-detail/wiki-detail.component').then(m => m.WikiDetailComponent)
+},
+
             { path: 'rpa-audit', component: RpaAuditComponent },
-            { path: 'start-audit',component: StartAuditComponent,
- },    {
+            { path: 'start-audit',component: StartAuditComponent,},    
+            {
                 path: 'rpa-audit', component: RpaAuditComponent},
             {
                 path: 'rpa-audit/process/:id', component: ProcessDetailComponent
