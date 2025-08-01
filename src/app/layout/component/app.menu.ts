@@ -23,7 +23,7 @@ export class AppMenu {
             {
                 label: 'applications Pack ',
                 items: [
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-book', routerLink: ['/dashboard'] },
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-book', routerLink: [''] },
                     {
                     label: 'Audit Application',
                     icon: 'pi pi-fw pi-search',
