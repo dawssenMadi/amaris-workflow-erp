@@ -53,16 +53,16 @@ export class AppMenu {
                             },
                         ]
                     },
-                    { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
+                    { label: 'Data Dictionnary', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
                     { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
-                    { label: 'Test Unitaire', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
-                    { label: 'Wiki', icon: 'pi pi-fw pi-cog', routerLink: ['/wiki'] },
+                    { label: 'Test Pilot', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
+                    { label: 'Resolution Center', icon: 'pi pi-fw pi-cog', routerLink: ['/wiki'] },
                     {label: 'Camunda',
                         icon: 'pi pi-fw pi-search',
                         items: [{ label: 'Modeler', icon: 'pi pi-fw pi-book', routerLink: ['/modeler']},
                                 { label: 'Clusters', icon: 'pi pi-fw pi-book', routerLink: ['/clusters']}
                         ]},
-                    { label: 'Audit RPA', icon: 'pi pi-fw pi-cog', routerLink: ['/rpa-audit'] },
+                    { label: 'Audit360', icon: 'pi pi-fw pi-cog', routerLink: ['/rpa-audit'] },
 
 
                 ]
