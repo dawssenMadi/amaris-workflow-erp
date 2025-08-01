@@ -24,37 +24,6 @@ export class AppMenu {
                 label: 'Applications Pack',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: [''] },
-                    {
-                        label: 'Audit Application',
-                        icon: 'pi pi-fw pi-shield',
-                        items: [
-                            {
-                                label: 'Démarrer Audit',
-                                icon: 'pi pi-fw pi-play-circle',
-                                routerLink: ['/start-audit']
-                            },
-                            {
-                                label: 'Audits',
-                                icon: 'pi pi-fw pi-clipboard',
-                                routerLink: ['/audit']
-                            },
-                            {
-                                label: 'Actions',
-                                icon: 'pi pi-fw pi-wrench',
-                                routerLink: ['/actions']
-                            },
-                            {
-                                label: 'Planning',
-                                icon: 'pi pi-fw pi-calendar',
-                                routerLink: ['/Planning']
-                            },
-                            {
-                                label: 'Reporting',
-                                icon: 'pi pi-fw pi-chart-line',
-                                routerLink: ['/reporting']
-                            },
-                        ]
-                    },
                     { label: 'Data Dictionary', icon: 'pi pi-fw pi-database', routerLink: ['/dictionnaire'] },
                     { label: 'Test Pilot', icon: 'pi pi-fw pi-code', routerLink: ['/test-unitaire'] },
                     { label: 'Resolution Center', icon: 'pi pi-fw pi-question-circle', routerLink: ['/wiki'] },
@@ -66,7 +35,19 @@ export class AppMenu {
                             { label: 'Clusters', icon: 'pi pi-fw pi-th-large', routerLink: ['/clusters'] }
                         ]
                     },
-                    { label: 'Audit360', icon: 'pi pi-fw pi-eye', routerLink: ['/rpa-audit'] },
+                    { label: 'Audit360', icon: 'pi pi-fw pi-eye', items: [
+                            {
+                                label: 'Audit360',
+                                icon: 'pi pi-fw pi-eye',
+                                routerLink: ['/rpa-audit']
+                            },
+                            {
+                                label: 'Actions',
+                                icon: 'pi pi-fw pi-wrench',
+                                routerLink: ['/actions']
+                            },
+                        ],
+                    },
                 ]
             },
         ];
