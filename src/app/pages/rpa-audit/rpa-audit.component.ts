@@ -91,14 +91,14 @@ export class RpaAuditComponent implements OnInit {
     this.deployedProcesses = [
       {
         id: 'Process_pt085ol',
-        name: 'Processus de validation des commandes',
+        name: "Processus d'audit automatique",
         version: '1.2.0',
         deployedAt: new Date(2025, 6, 25),
         status: 'active',
         description: 'Processus automatisé pour la validation et l\'approbation des commandes clients',
-        auditStatus: 'in-progress',
+        auditStatus: 'not-started',
         auditRules: this.generateAuditRules('Process_pt085ol'),
-        completedRules: 3,
+        completedRules: 0,
         totalRules: 5,
         lastAuditDate: new Date(2025, 6, 28)
       },
