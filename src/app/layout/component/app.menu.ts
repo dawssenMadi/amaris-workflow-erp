@@ -59,7 +59,7 @@ export class AppMenu {
                     { label: 'Test Pilot', icon: 'pi pi-fw pi-code', routerLink: ['/test-unitaire'] },
                     { label: 'Resolution Center', icon: 'pi pi-fw pi-question-circle', routerLink: ['/wiki'] },
                     {
-                        label: 'Automation Tools',
+                        label: 'Autocomplete',
                         icon: 'pi pi-fw pi-cog',
                         items: [
                             { label: 'Modeler', icon: 'pi pi-fw pi-sitemap', routerLink: ['/modeler'] },
