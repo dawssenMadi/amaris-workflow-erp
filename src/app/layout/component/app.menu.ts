@@ -20,10 +20,11 @@ export class AppMenu {
 
     ngOnInit() {
         this.model = [
-            { label: 'Dashboard', icon: 'pi pi-fw pi-book', routerLink: ['/dashboard'] },
             {
                 label: 'applications Pack ',
-                items: [{
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-book', routerLink: ['/dashboard'] },
+                    {
                     label: 'Audit Application',
                     icon: 'pi pi-fw pi-search',
                     items: [
