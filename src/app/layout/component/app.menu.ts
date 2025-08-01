@@ -60,7 +60,7 @@ export class AppMenu {
                     { label: 'Resolution Center', icon: 'pi pi-fw pi-question-circle', routerLink: ['/wiki'] },
                     {
                         label: 'Automation Tools',
-                        icon: 'pi pi-fw pi-cogs',
+                        icon: 'pi pi-fw pi-cog',
                         items: [
                             { label: 'Modeler', icon: 'pi pi-fw pi-sitemap', routerLink: ['/modeler'] },
                             { label: 'Clusters', icon: 'pi pi-fw pi-th-large', routerLink: ['/clusters'] }
