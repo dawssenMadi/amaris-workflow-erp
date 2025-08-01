@@ -53,7 +53,7 @@ export class AppMenu {
                             },
                         ]
                     },
-                    { label: 'Data Dictionnary', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
+                    { label: 'Data Dictionary', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
                     { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
                     { label: 'Test Pilot', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
                     { label: 'Resolution Center', icon: 'pi pi-fw pi-cog', routerLink: ['/wiki'] },
