@@ -57,7 +57,7 @@ export class AppMenu {
                     { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
                     { label: 'Test Pilot', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
                     { label: 'Resolution Center', icon: 'pi pi-fw pi-cog', routerLink: ['/wiki'] },
-                    {label: 'Camunda',
+                    {label: 'Autocomplete',
                         icon: 'pi pi-fw pi-search',
                         items: [{ label: 'Modeler', icon: 'pi pi-fw pi-book', routerLink: ['/modeler']},
                                 { label: 'Clusters', icon: 'pi pi-fw pi-book', routerLink: ['/clusters']}
