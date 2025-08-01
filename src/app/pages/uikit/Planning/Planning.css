@@ -1,0 +1,126 @@
+/* Modal styling */
+.p-dialog .p-dialog-header {
+    padding: 1.5rem;
+}
+
+.p-dialog .p-dialog-content {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.field {
+    margin-bottom: 1rem;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.p-calendar,
+.p-select,
+.p-inputtext {
+    width: 100%;
+}
+
+/* Step indicator styling */
+h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* Button spacing in modal */
+.flex.justify-between button,
+.flex.justify-end button {
+    min-width: 100px;
+}
+
+/* Form validation styling */
+.p-select.ng-invalid.ng-touched,
+.p-calendar.ng-invalid.ng-touched,
+.p-inputtext.ng-invalid.ng-touched {
+    border-color: var(--red-500);
+}
+
+.audit-badge {
+    border-radius: 2px;
+    padding: .25em .5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .3px;
+}
+
+.audit-badge.status-cree {
+    background: #C8E6C9;
+    color: #256029;
+}
+
+.audit-badge.status-en_cours {
+    background: #FEEDAF;
+    color: #8A5340;
+}
+
+.audit-badge.status-termine {
+    background: #B3E5FC;
+    color: #23547B;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .audit-badge.status-cree {
+    background: rgba(76, 175, 80, 0.16);
+    color: #81C784;
+}
+
+[data-theme="dark"] .audit-badge.status-en_cours {
+    background: rgba(255, 193, 7, 0.16);
+    color: #FFD54F;
+}
+
+[data-theme="dark"] .audit-badge.status-termine {
+    background: rgba(33, 150, 243, 0.16);
+    color: #64B5F6;
+}
+
+/* Table styling */
+.p-datatable .p-datatable-tbody > tr > td {
+    padding: 1rem;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+    padding: 1rem;
+    font-weight: 600;
+}
+
+/* Action buttons styling */
+.p-button.p-button-text {
+    padding: 0.5rem;
+    margin: 0;
+}
+
+.p-button.p-button-text:not(:disabled):hover {
+    background: rgba(var(--primary-color-rgb), 0.04);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .p-datatable .p-datatable-tbody > tr > td,
+    .p-datatable .p-datatable-thead > tr > th {
+        padding: 0.5rem;
+    }
+    
+    .flex.gap-2 {
+        gap: 0.25rem;
+    }
+}
+
+/* Loading state */
+.p-datatable .p-datatable-loading-overlay {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .p-datatable .p-datatable-loading-overlay {
+    background-color: rgba(0, 0, 0, 0.9);
+}

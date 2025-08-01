@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 export class AuditService {
   private audits: any[] = [];
   private nextId = 1;
-
+private correctionAudit: any;
   getAudits() {
     return this.audits;
   }
@@ -46,4 +46,16 @@ export class AuditService {
       { no: 6, question: 'Validation avec métier', response: '', commentaire: '' }
     ];
   }
+  sendToCorrection(audit: any) {
+  this.correctionAudit = {
+    ...audit,
+    statusCorrection: 'En cours', // initialiser le status
+    items: [...audit.items],
+    technical: [...audit.technical]
+  };
+}
+
+getCorrectionAudit() {
+  return this.correctionAudit;
+}
 }

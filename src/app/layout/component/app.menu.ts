@@ -21,52 +21,52 @@ export class AppMenu {
     ngOnInit() {
         this.model = [
             {
-                label: 'applications Pack ',
-                items: [{
-                    label: 'Audit Application',
-                    icon: 'pi pi-fw pi-search',
-                    items: [
+                label: 'Applications Pack',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: [''] },
+                    {
+                        label: 'Audit Application',
+                        icon: 'pi pi-fw pi-shield',
+                        items: [
                             {
                                 label: 'Démarrer Audit',
-                                icon: 'pi pi-fw pi-play',
-                                routerLink: ['/uikit/start-audit']
-                                // routerLink: ['/audit/start']
+                                icon: 'pi pi-fw pi-play-circle',
+                                routerLink: ['/start-audit']
                             },
                             {
                                 label: 'Audits',
-                                icon: 'pi pi-fw pi-list',
-                                routerLink: ['/uikit/audit']
-
-                                // routerLink: ['/audit/list']
+                                icon: 'pi pi-fw pi-clipboard',
+                                routerLink: ['/audit']
                             },
                             {
                                 label: 'Actions',
-                                icon: 'pi pi-fw pi-cog',
-                                 routerLink: ['/uikit/actions']
-
-                                // routerLink: ['/audit/actions']
+                                icon: 'pi pi-fw pi-wrench',
+                                routerLink: ['/actions']
                             },
                             {
                                 label: 'Planning',
                                 icon: 'pi pi-fw pi-calendar',
-                                // routerLink: ['/audit/planning']
+                                routerLink: ['/Planning']
                             },
                             {
                                 label: 'Reporting',
-                                icon: 'pi pi-fw pi-chart-bar',
-                                // routerLink: ['/audit/reporting']
+                                icon: 'pi pi-fw pi-chart-line',
+                                routerLink: ['/reporting']
                             },
                         ]
                     },
-                    { label: 'Dictionnaire de Données', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
-                    { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
-                    { label: 'Test Unitaire', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
-                    {label: 'Camunda',
-                        icon: 'pi pi-fw pi-search',
-                        items: [{ label: 'Modeler', icon: 'pi pi-fw pi-book', routerLink: ['/modeler']},
-                                { label: 'Clusters', icon: 'pi pi-fw pi-book', routerLink: ['/clusters']}
-                        ]}
-
+                    { label: 'Data Dictionary', icon: 'pi pi-fw pi-database', routerLink: ['/dictionnaire'] },
+                    { label: 'Test Pilot', icon: 'pi pi-fw pi-code', routerLink: ['/test-unitaire'] },
+                    { label: 'Resolution Center', icon: 'pi pi-fw pi-question-circle', routerLink: ['/wiki'] },
+                    {
+                        label: 'Autocomplete',
+                        icon: 'pi pi-fw pi-cog',
+                        items: [
+                            { label: 'Modeler', icon: 'pi pi-fw pi-sitemap', routerLink: ['/modeler'] },
+                            { label: 'Clusters', icon: 'pi pi-fw pi-th-large', routerLink: ['/clusters'] }
+                        ]
+                    },
+                    { label: 'Audit360', icon: 'pi pi-fw pi-eye', routerLink: ['/rpa-audit'] },
                 ]
             },
         ];
