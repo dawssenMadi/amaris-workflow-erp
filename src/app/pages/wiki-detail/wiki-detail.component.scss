@@ -1,0 +1,149 @@
+.article-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--surface-card);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.article-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.article-meta {
+  font-size: 0.9rem;
+  color: gray;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.article-content {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  overflow-wrap: break-word;         // 💥 casse les mots trop longs
+  word-wrap: break-word;             // 💥 rétrocompatibilité
+  white-space: normal;               // évite le débordement horizontal
+  max-width: 100%;                   // s’assure de ne pas dépasser le conteneur
+}
+
+.article-content * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+:host-context(.dark) .article-container {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+.article-image {
+  margin-top: 2rem;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.btn {
+  padding: 0.5rem 1rem;
+  margin-right: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #007bff;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btn.danger {
+  background-color: #dc3545;
+
+  &:hover {
+    background-color: #a71d2a;
+  }
+}
+
+:host-context(.dark) .btn {
+  background-color: #2a72d4;
+  color: #f0f0f0;
+
+  &:hover {
+    background-color: #1f57a4;
+  }
+}
+
+:host-context(.dark) .btn.danger {
+  background-color: #c0392b;
+
+  &:hover {
+    background-color: #922b21;
+  }
+}
+.top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.text-blue-600:hover {
+  text-decoration: underline;
+}
+.action-icons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.icon-btn.danger {
+  color: #dc3545;
+
+  &:hover {
+    color: #a71d2a;
+  }
+}
+
+:host-context(.dark) .icon-btn.danger {
+  color: #e06666;
+
+  &:hover {
+    color: #ff4d4d;
+  }
+}

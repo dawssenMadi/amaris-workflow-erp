@@ -14,6 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+
 interface Audit {
     id?: number;
     domain?: string;
@@ -44,7 +45,8 @@ interface Audit {
         TooltipModule,
         DialogModule,
         CalendarModule,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+
     ],
     providers: [ConfirmationService, MessageService]
 })

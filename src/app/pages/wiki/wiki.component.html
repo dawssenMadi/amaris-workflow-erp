@@ -48,6 +48,61 @@
     </aside>
 
     <main class="main-content">
+      <section class="content-section post-creation">
+        <div #postCard class="create-post-card" (click)="showEditor = true" tabindex="0">
+          <div class="post-top">
+            <div class="avatar">🧑</div>
+            <input
+              type="text"
+              placeholder="Titre de l’article"
+              [(ngModel)]="newPostTitle"
+              class="post-title-input"
+              (focus)="showEditor = true"
+            />
+          </div>
+
+          <p-editor
+            *ngIf="showEditor"
+            [(ngModel)]="newPostContent"
+            [style]="{height:'180px'}"
+            [styleClass]="'post-editor'"
+            [placeholder]="'Décrivez votre problème ou partagez votre retour d’expérience...'"
+          ></p-editor>
+<div class="hashtag-section" *ngIf="showEditor" >
+  <label for="hashtagInput">Hashtags :</label>
+  <div class="hashtag-input-container">
+    <input type="text" [(ngModel)]="newPostHashtagInput" placeholder="#ex: #BPMN" (keyup.enter)="addHashtag()" />
+  </div>
+
+  <div class="hashtag-list">
+    <span *ngFor="let tag of hashtags" class="hashtag-chip">
+      {{ tag }} <button (click)="removeHashtag(tag)">×</button>
+    </span>
+  </div>
+</div>
+
+          <input type="file" accept="image/*" (change)="onImageSelected($event)" hidden #fileInput />
+<div class="post-actions-bar" *ngIf="showEditor">
+  <div class="left-buttons">
+    <select
+      class="category-select"
+      [(ngModel)]="selectedCategory"
+      (change)="selectCategory(selectedCategory)">
+      <option value="" disabled>Choisir une catégorie</option>
+      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+    </select>
+
+    <button class="action-btn" title="Ajouter une capture" (click)="fileInput.click()">
+      <i class="fa fa-camera"></i> <span>Capture</span>
+    </button>
+  </div>
+
+  <button class="publish-btn" (click)="publishPost()">Publier l’article</button>
+</div>
+
+        </div>
+      </section>
+
       <section class="content-section">
         <div class="section-header">
           <h2 class="section-title">Reprenez où vous vous êtes arrêté</h2>
@@ -81,21 +136,47 @@
           <div class="tabs-container">
             <div class="tabs">
               <button
-                *ngFor="let tab of tabs"
+                *ngFor="let cat of categories"
                 class="tab"
-                [class.active]="activeTab === tab"
-                (click)="selectTab(tab)">
-                {{ tab }}
+                [class.active]="selectedCategoryFilter === cat"
+                (click)="selectCategoryFilter(cat)"
+              >
+                {{ cat }}
               </button>
+              <button
+                class="tab"
+                [class.active]="selectedCategoryFilter === ''"
+                (click)="selectCategoryFilter('')"
+                title="Afficher toutes les catégories"
+              >
+                Tous
+              </button>
+<div class="hashtag-filter-bar">
+  <input
+    type="text"
+    [(ngModel)]="searchHashtag"
+    (input)="filterByHashtag()"
+    placeholder="Filtrer par hashtag"
+    class="hashtag-filter-input"
+  />
+</div>
+
+
             </div>
           </div>
         </div>
 
         <div class="activity-cards">
-          <div
-            *ngFor="let card of activityCards"
-            class="activity-card"
-            (click)="previewContent(card)">
+<ng-container *ngFor="let card of activityCards">
+  <div *ngIf="card.hashtags?.length" class="card-hashtags">
+  <span *ngFor="let tag of card.hashtags" class="hashtag-chip">{{ tag }}</span>
+</div>
+
+  <a
+    *ngIf="!selectedCategoryFilter || card.category === selectedCategoryFilter"
+    class="activity-card"
+    [routerLink]="['/wiki', card.id]"
+  >
             <div class="card-header">
               <div class="author-info">
                 <div class="author-avatar">{{ card.author.charAt(0) }}</div>
@@ -110,10 +191,14 @@
               </div>
             </div>
 
-            <div class="card-content">
-              <h3 class="content-title">{{ card.title }}</h3>
-              <p class="content-preview">{{ card.content }}</p>
-            </div>
+<div class="card-content">
+  <div class="content-category">
+    Catégorie : {{ card.category || 'Non spécifiée' }}
+  </div>
+  <h3 class="content-title">{{ card.title }}</h3>
+  <p class="content-preview" [innerHTML]="card.content"></p>
+</div>
+
 
             <div class="card-footer">
               <div class="metadata">
@@ -129,10 +214,43 @@
                 <button class="action-btn more-btn">⋯</button>
               </div>
             </div>
-          </div>
+          </a>
+          </ng-container>
+
         </div>
       </section>
     </main>
   </div>
-</div>
 
+  <button class="chatbot-button" (click)="toggleChatbot()">
+    💬
+  </button>
+
+  <div class="chatbot-panel" *ngIf="chatbotOpen">
+    <div class="chatbot-header">
+      <span>Assistant IA</span>
+      <button class="close-btn" (click)="toggleChatbot()">✖</button>
+    </div>
+
+    <div class="chatbot-messages">
+      <div *ngFor="let msg of messages" [class.user]="msg.sender === 'user'" [class.ai]="msg.sender === 'ai'">
+        {{ msg.text }}
+      </div>
+    </div>
+
+    <div class="chatbot-input">
+      <input [(ngModel)]="userInput" placeholder="Posez votre question..." (keyup.enter)="sendMessage()" />
+      <button (click)="sendMessage()">Envoyer</button>
+    </div>
+  </div>
+
+  <!-- Modal pour prévisualisation -->
+  <div class="modal-backdrop" *ngIf="selectedCard" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="closeModal()">✖</button>
+      <h2>{{ selectedCard.title }}</h2>
+      <p [innerHTML]="selectedCard.content"></p>
+      <img *ngIf="selectedCard.imageUrl" [src]="selectedCard.imageUrl" alt="Capture" class="modal-image" />
+    </div>
+  </div>
+</div>
