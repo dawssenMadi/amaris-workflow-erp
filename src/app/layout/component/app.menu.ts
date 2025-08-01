@@ -21,28 +21,27 @@ export class AppMenu {
     ngOnInit() {
         this.model = [
             {
-                label: 'applications Pack ',
+                label: 'Applications Pack',
                 items: [
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-book', routerLink: [''] },
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: [''] },
                     {
-                    label: 'Audit Application',
-                    icon: 'pi pi-fw pi-search',
-                    items: [
+                        label: 'Audit Application',
+                        icon: 'pi pi-fw pi-shield',
+                        items: [
                             {
                                 label: 'Démarrer Audit',
-                                icon: 'pi pi-fw pi-play',
+                                icon: 'pi pi-fw pi-play-circle',
                                 routerLink: ['/start-audit']
                             },
                             {
                                 label: 'Audits',
-                                icon: 'pi pi-fw pi-list',
+                                icon: 'pi pi-fw pi-clipboard',
                                 routerLink: ['/audit']
-
                             },
                             {
                                 label: 'Actions',
-                                icon: 'pi pi-fw pi-cog',
-                                 routerLink: ['/actions']
+                                icon: 'pi pi-fw pi-wrench',
+                                routerLink: ['/actions']
                             },
                             {
                                 label: 'Planning',
@@ -51,22 +50,23 @@ export class AppMenu {
                             },
                             {
                                 label: 'Reporting',
-                                icon: 'pi pi-fw pi-chart-bar',
+                                icon: 'pi pi-fw pi-chart-line',
+                                routerLink: ['/reporting']
                             },
                         ]
                     },
-                    { label: 'Data Dictionary', icon: 'pi pi-fw pi-book', routerLink: ['/dictionnaire'] },
-                    { label: 'Audit Application', icon: 'pi pi-fw pi-search', routerLink: ['/audit'] },
-                    { label: 'Test Pilot', icon: 'pi pi-fw pi-cog', routerLink: ['/test-unitaire'] },
-                    { label: 'Resolution Center', icon: 'pi pi-fw pi-cog', routerLink: ['/wiki'] },
-                    {label: 'Autocomplete',
-                        icon: 'pi pi-fw pi-search',
-                        items: [{ label: 'Modeler', icon: 'pi pi-fw pi-book', routerLink: ['/modeler']},
-                                { label: 'Clusters', icon: 'pi pi-fw pi-book', routerLink: ['/clusters']}
-                        ]},
-                    { label: 'Audit360', icon: 'pi pi-fw pi-cog', routerLink: ['/rpa-audit'] },
-
-
+                    { label: 'Data Dictionary', icon: 'pi pi-fw pi-database', routerLink: ['/dictionnaire'] },
+                    { label: 'Test Pilot', icon: 'pi pi-fw pi-code', routerLink: ['/test-unitaire'] },
+                    { label: 'Resolution Center', icon: 'pi pi-fw pi-question-circle', routerLink: ['/wiki'] },
+                    {
+                        label: 'Automation Tools',
+                        icon: 'pi pi-fw pi-cogs',
+                        items: [
+                            { label: 'Modeler', icon: 'pi pi-fw pi-sitemap', routerLink: ['/modeler'] },
+                            { label: 'Clusters', icon: 'pi pi-fw pi-th-large', routerLink: ['/clusters'] }
+                        ]
+                    },
+                    { label: 'Audit360', icon: 'pi pi-fw pi-eye', routerLink: ['/rpa-audit'] },
                 ]
             },
         ];
