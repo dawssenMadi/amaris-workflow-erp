@@ -6,6 +6,12 @@
   NODE_VERSION = "18"
   NPM_VERSION = "8"
 
+# Redirection pour SPA - toutes les routes doivent pointer vers index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/assets/bpmn-font/font/*"
   [headers.values]
