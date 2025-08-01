@@ -14,10 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CalendarModule } from 'primeng/calendar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/amine-refont-audit-and-add-kafka
 interface Audit {
     id?: number;
     domain?: string;
@@ -48,11 +45,8 @@ interface Audit {
         TooltipModule,
         DialogModule,
         CalendarModule,
-<<<<<<< HEAD
         ConfirmDialogModule,
-=======
-        ConfirmDialogModule
->>>>>>> origin/amine-refont-audit-and-add-kafka
+
     ],
     providers: [ConfirmationService, MessageService]
 })
