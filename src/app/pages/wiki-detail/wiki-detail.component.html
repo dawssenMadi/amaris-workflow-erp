@@ -1,0 +1,30 @@
+<div *ngIf="article" class="article-container">
+  <div class="top-actions">
+    <button class="text-sm text-blue-600 hover:underline" (click)="goBack()">⬅ Retour</button>
+  </div>
+  <h1 class="article-title">{{ article.title }}</h1>
+
+  <div class="article-meta">
+    <span><strong>Auteur :</strong> {{ article.author }}</span>
+    <span><strong>Date :</strong> {{ article.creationDate | date: 'dd/MM/yyyy' }}</span>
+  </div>
+
+  <!-- ✅ Affichage sécurisé avec style conservé -->
+  <div class="article-content" [innerHTML]="safeContent"></div>
+
+  <img *ngIf="article.imageUrl" [src]="article.imageUrl" alt="Illustration" class="article-image" />
+
+<div class="action-icons">
+  <button class="icon-btn" (click)="editArticle()" title="Modifier">
+    ✏️
+  </button>
+  <button class="icon-btn danger" (click)="deleteArticle()" title="Supprimer">
+    🗑
+  </button>
+</div>
+
+</div>
+
+<div *ngIf="!article">
+  <p>Article non trouvé.</p>
+</div>
